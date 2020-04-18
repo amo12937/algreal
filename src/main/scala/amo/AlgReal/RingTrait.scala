@@ -12,7 +12,7 @@ trait RingTrait[T] {
 }
 
 object Ring {
-    object Implicits {
+    trait implicits {
         import scala.language.implicitConversions
         implicit def nToRing[T](implicit ring: RingTrait[T]): (Int => T) = ring.timesN(ring.one, _)
     }

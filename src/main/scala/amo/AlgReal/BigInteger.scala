@@ -3,7 +3,7 @@ package amo.AlgReal
 import scala.math.Ordering
 
 object BigInteger {
-    object Implicits {
+    trait implicits {
         implicit val bigInt =
             new GcdDomainTrait[BigInt]
             with Ordering[BigInt] {

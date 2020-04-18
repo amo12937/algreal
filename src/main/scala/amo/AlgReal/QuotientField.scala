@@ -65,8 +65,9 @@ object QuotientField {
         new QuotientField(n, d)
     }
 
-    object Implicits {
+    trait implicits {
         import scala.language.implicitConversions
+
         implicit def sToQuotientField[S, T](s: S)(
             implicit sToT: S => T,
             gcdDomain: GcdDomainTrait[T],
@@ -75,11 +76,10 @@ object QuotientField {
 
         def quotientField[T](
             implicit gcdDomain: GcdDomainTrait[T],
-            ordering: Ordering[T]
+            ordering: Ordering[T],
+            nToRing: Int => T
         ) = new GcdDomainTrait[QuotientField[T]]
         with Ordering[QuotientField[T]] {
-            import amo.AlgReal.Ring.Implicits._
-
             def compare(x: QuotientField[T], y: QuotientField[T]): Int =
                 ordering.compare((x - y).num, gcdDomain.zero)
 
