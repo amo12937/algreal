@@ -81,7 +81,7 @@ class BigIntegerSpec extends AnyWordSpec with Matchers {
 
     "bigInt.content" should {
         "return a greatest common divisor of a list" in {
-            bigInt.content(List(12, 18, 14)) should be(2)
+            bigInt.content(Vector(12, 18, 14)) should be(2)
         }
     }
 }

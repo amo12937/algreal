@@ -24,7 +24,7 @@ object BigInteger {
                 def divide(a: BigInt, b: BigInt) = a / b
 
                 def gcd(a: BigInt, b: BigInt) = a gcd b
-                def content(xs: Seq[BigInt]) = xs.reduceLeft(gcd)
+                def content(xs: Vector[BigInt]) = xs.foldLeft(BigInt(0))(gcd)
             }
     }
 }

@@ -1,6 +1,6 @@
 package amo.AlgReal
 
-trait RingTrait[T] {
+trait RingTrait[T] extends EqTrait[T] {
     val zero: T
     val one: T
     def add(a: T, b: T): T

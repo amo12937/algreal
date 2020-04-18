@@ -1,9 +1,12 @@
 package amo.AlgReal
 
 import java.lang.ArithmeticException
-import scala.util.Try
 
-class QuotientField[T](val num: T, val denom: T)(implicit gcdDomain: GcdDomainTrait[T], ordering: Ordering[T], nToRing: Int => T) {
+class QuotientField[T](val num: T, val denom: T)(
+    implicit gcdDomain: GcdDomainTrait[T],
+    ordering: Ordering[T],
+    nToRing: Int => T
+) extends Equals {
     def + (rhs: QuotientField[T]): QuotientField[T] = QuotientField(
         gcdDomain.add(
             gcdDomain.times(num, rhs.denom),
@@ -33,6 +36,15 @@ class QuotientField[T](val num: T, val denom: T)(implicit gcdDomain: GcdDomainTr
     override def toString: String =
         if (ordering.equiv(denom, 1)) num.toString
         else s"${num.toString} / ${denom.toString}"
+
+    def canEqual(rhs: Any): Boolean = rhs.isInstanceOf[QuotientField[T]]
+    override def equals(rhs: Any): Boolean = rhs match {
+        case r: QuotientField[T] =>
+            r.canEqual(this) &&
+            ordering.equiv(num, r.num) &&
+            ordering.equiv(denom, r.denom)
+        case _ => false
+    }
 }
 
 object QuotientField {
@@ -102,7 +114,7 @@ object QuotientField {
             def gcd(a: QuotientField[T], b: QuotientField[T]) =
                 if (equiv(a, 0) && equiv(b, 0)) 0 else 1
 
-            def content(xs: Seq[QuotientField[T]]) = xs.reduceLeft(gcd)
+            def content(xs: Vector[QuotientField[T]]) = xs.reduceLeft(gcd)
         }
     }
 }
