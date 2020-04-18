@@ -5,7 +5,7 @@ import scala.math.Ordering
 object BigInteger {
     trait implicits {
         implicit val bigInt =
-            new GcdDomainTrait[BigInt]
+            new EuclideanDomainTrait[BigInt]
             with Ordering[BigInt] {
                 def compare(x: BigInt, y: BigInt): Int =
                     if (x < y) -1
@@ -22,6 +22,8 @@ object BigInteger {
                 def pow(a: BigInt, n: Int) = a pow n
 
                 def divide(a: BigInt, b: BigInt) = a / b
+                def divMod(a: BigInt, b: BigInt) = a /% b
+                def mod(a: BigInt, b: BigInt) = a % b
 
                 def gcd(a: BigInt, b: BigInt) = a gcd b
                 def content(xs: Vector[BigInt]) = xs.foldLeft(BigInt(0))(gcd)
