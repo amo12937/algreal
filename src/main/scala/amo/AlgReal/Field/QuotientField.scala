@@ -2,7 +2,7 @@ package amo.AlgReal.Field
 
 import java.lang.ArithmeticException
 
-import amo.AlgReal.{ EqTrait, EuclideanDomainTrait, GcdDomainTrait, RingTrait }
+import amo.AlgReal.{ EqTrait, GcdDomainTrait, RingTrait }
 
 class QuotientField[T](val num: T, val denom: T)(
     implicit gcdDomain: GcdDomainTrait[T],
@@ -54,7 +54,7 @@ trait QuotientFieldEqTrait[T] extends EqTrait[QuotientField[T]] {
         ring.equiv(ring.times(a.num, b.denom), ring.times(a.denom, b.num))
 }
 
-trait QuotientFieldEuclideanDomainTrait[T] extends EuclideanDomainTrait[QuotientField[T]] {
+trait QuotientFieldTrait[T] extends FieldTrait[QuotientField[T]] {
     implicit val nToRing: Int => QuotientField[T]
 
     lazy val zero = 0
@@ -67,14 +67,6 @@ trait QuotientFieldEuclideanDomainTrait[T] extends EuclideanDomainTrait[Quotient
     def pow(a: QuotientField[T], n: Int) = a pow n
 
     def divide(a: QuotientField[T], b: QuotientField[T]) = a / b
-    def unit(a: QuotientField[T]) = if (equiv(a, 0)) 1 else a
-
-    def gcd(a: QuotientField[T], b: QuotientField[T]) =
-        if (equiv(a, 0)) b
-        else if (equiv(b, 0)) a
-        else 1
-
-    def divMod(a: QuotientField[T], b: QuotientField[T]) = (a / b, 0)
 }
 
 trait QuotientFieldOrdering[T] extends Ordering[QuotientField[T]] {
@@ -123,7 +115,7 @@ object QuotientField {
         implicit implicitlyGcdDomainT: GcdDomainTrait[T],
         implicitlyNToRingT: Int => T,
         implicitlyNToRing: Int => QuotientField[T]
-    ) = new QuotientFieldEuclideanDomainTrait[T]
+    ) = new QuotientFieldTrait[T]
     with QuotientFieldEqTrait[T]
     with QuotientFieldCreatorTrait[T] {
         val nToRing = implicitlyNToRing
@@ -137,7 +129,7 @@ object QuotientField {
         implicitlyOrderingT: Ordering[T],
         implicitlyNToRingT: Int => T,
         implicitlyNToRing: Int => QuotientField[T]
-    ) = new QuotientFieldEuclideanDomainTrait[T]
+    ) = new QuotientFieldTrait[T]
     with QuotientFieldOrdering[T]
     with QuotientFieldCreatorTrait[T] {
         val nToRing = implicitlyNToRing
