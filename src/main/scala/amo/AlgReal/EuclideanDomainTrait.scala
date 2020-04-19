@@ -2,7 +2,7 @@ package amo.AlgReal
 
 trait EuclideanDomainTrait[T] extends GcdDomainTrait[T] {
     def divMod(a: T, b: T): (T, T)
-    def mod(a: T, b: T): T
+    def mod(a: T, b: T): T = divMod(a, b)._2
 
     def exgcd(a: T, b: T): (T, T, T) = {
         def tailRec(

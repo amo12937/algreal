@@ -242,11 +242,41 @@ object Unipoly {
         nToRing: Int => T
     ): Unipoly[T] = Unipoly(cs.toVector)
 
-    //trait implicits {
-    //    def unipolyGcdDomain[T](
-    //        implicit gcdDomain: GcdDomainTrait[T],
-    //        nToRing: Int => T
-    //    ) = new EuclideanDomainTrait[Unipoly[T]] {
-    //    }
-    //}
+    trait implicits {
+        import scala.language.implicitConversions
+
+        implicit def sToUnipoly[S, T](s: S)(
+            implicit gcdDomainT: GcdDomainTrait[T],
+            nToRingT: Int => T,
+            sToT: S => T
+        ): Unipoly[T] = Unipoly(sToT(s))
+
+        def unipolyEuclideanDomain[T](
+            implicit gcdDomain: GcdDomainTrait[T],
+            nToRing: Int => T
+        ) = new EuclideanDomainTrait[Unipoly[T]] {
+            def equiv(a: Unipoly[T], b: Unipoly[T]) = a == b
+
+            val zero = 0
+            val one = 1
+
+            def add(a: Unipoly[T], b: Unipoly[T]) = a + b
+            def negate(a: Unipoly[T]) = -a
+            def times(a: Unipoly[T], b: Unipoly[T]) = a * b
+            def timesN(a: Unipoly[T], n: Int) = a * n
+            def pow(a: Unipoly[T], n: Int) = a pow n
+
+            def divide(a: Unipoly[T], b: Unipoly[T]) = a divide b
+            def unit(a: Unipoly[T]) = Unipoly(gcdDomain.unit(a.leadingCoefficient))
+
+            def gcd(a: Unipoly[T], b: Unipoly[T]) = a gcd b
+
+            def divMod(a: Unipoly[T], b: Unipoly[T]) = {
+                val lc = b.leadingCoefficient
+                val f = a.unscale(lc)
+                val g = b.unscale(lc)
+                f.monicDivMod(g)
+            }
+        }
+    }
 }

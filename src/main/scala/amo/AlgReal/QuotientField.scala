@@ -52,7 +52,7 @@ trait QuotientFieldEqTrait[T] extends EqTrait[QuotientField[T]] {
         ring.equiv(ring.times(a.num, b.denom), ring.times(a.denom, b.num))
 }
 
-trait QuotientFieldGcdDomainTrait[T] extends GcdDomainTrait[QuotientField[T]] {
+trait QuotientFieldEuclideanDomainTrait[T] extends EuclideanDomainTrait[QuotientField[T]] {
     implicit val nToRing: Int => QuotientField[T]
 
     lazy val zero = 0
@@ -68,9 +68,11 @@ trait QuotientFieldGcdDomainTrait[T] extends GcdDomainTrait[QuotientField[T]] {
     def unit(a: QuotientField[T]) = if (equiv(a, 0)) 1 else a
 
     def gcd(a: QuotientField[T], b: QuotientField[T]) =
-        if (equiv(a, 0) && equiv(b, 0)) 0 else 1
+        if (equiv(a, 0)) b
+        else if (equiv(b, 0)) a
+        else 1
 
-    def content(xs: Vector[QuotientField[T]]) = xs.reduceLeft(gcd)
+    def divMod(a: QuotientField[T], b: QuotientField[T]) = (a / b, 0)
 }
 
 trait QuotientFieldOrdering[T] extends Ordering[QuotientField[T]] {
@@ -128,7 +130,7 @@ object QuotientField {
         def quotientField[T](
             implicit gcdDomainTT: GcdDomainTrait[T],
             nToRingTT: Int => T
-        ) = new QuotientFieldGcdDomainTrait[T]
+        ) = new QuotientFieldEuclideanDomainTrait[T]
         with QuotientFieldEqTrait[T]
         with QuotientFieldCreatorTrait[T] {
             val nToRing = sToQuotientField
@@ -141,7 +143,7 @@ object QuotientField {
             implicit gcdDomainTT: GcdDomainTrait[T],
             orderingTT: Ordering[T],
             nToRingTT: Int => T
-        ) = new QuotientFieldGcdDomainTrait[T]
+        ) = new QuotientFieldEuclideanDomainTrait[T]
         with QuotientFieldOrdering[T]
         with QuotientFieldCreatorTrait[T] {
             val nToRing = sToQuotientField
