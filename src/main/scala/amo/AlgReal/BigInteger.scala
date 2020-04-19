@@ -23,6 +23,8 @@ object BigInteger {
                 def pow(a: BigInt, n: Int) = a pow n
 
                 def divide(a: BigInt, b: BigInt) = a / b
+                def unit(a: BigInt) = a.signum
+
                 def divMod(a: BigInt, b: BigInt) = a /% b
                 def mod(a: BigInt, b: BigInt) = a % b
 
@@ -30,6 +32,6 @@ object BigInteger {
                 def content(xs: Vector[BigInt]) = xs.foldLeft(BigInt(0))(gcd)
             }
 
-        implicit val rational = quotientField[BigInt]
+        implicit val rational = comparableQuotientField[BigInt]
     }
 }

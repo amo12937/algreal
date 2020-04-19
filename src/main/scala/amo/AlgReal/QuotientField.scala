@@ -4,7 +4,6 @@ import java.lang.ArithmeticException
 
 class QuotientField[T](val num: T, val denom: T)(
     implicit gcdDomain: GcdDomainTrait[T],
-    ordering: Ordering[T],
     nToRing: Int => T
 ) extends Equals {
     def + (rhs: QuotientField[T]): QuotientField[T] = QuotientField(
@@ -34,47 +33,77 @@ class QuotientField[T](val num: T, val denom: T)(
     )
 
     override def toString: String =
-        if (ordering.equiv(denom, 1)) num.toString
+        if (gcdDomain.equiv(denom, 1)) num.toString
         else s"${num.toString} / ${denom.toString}"
 
     def canEqual(rhs: Any): Boolean = rhs.isInstanceOf[QuotientField[T]]
     override def equals(rhs: Any): Boolean = rhs match {
         case r: QuotientField[T] =>
             r.canEqual(this) &&
-            ordering.equiv(num, r.num) &&
-            ordering.equiv(denom, r.denom)
+            gcdDomain.equiv(num, r.num) &&
+            gcdDomain.equiv(denom, r.denom)
         case _ => false
     }
+}
+
+trait QuotientFieldEqTrait[T] extends EqTrait[QuotientField[T]] {
+    implicit val ring: RingTrait[T]
+    def equiv(a: QuotientField[T], b: QuotientField[T]): Boolean =
+        ring.equiv(ring.times(a.num, b.denom), ring.times(a.denom, b.num))
+}
+
+trait QuotientFieldGcdDomainTrait[T] extends GcdDomainTrait[QuotientField[T]] {
+    implicit val nToRing: Int => QuotientField[T]
+
+    lazy val zero = 0
+    lazy val one = 1
+
+    def add(a: QuotientField[T], b: QuotientField[T]) = a + b
+    def negate(a: QuotientField[T]) = -a
+    def times(a: QuotientField[T], b: QuotientField[T]) = a * b
+    def timesN(a: QuotientField[T], n: Int) = a * n
+    def pow(a: QuotientField[T], n: Int) = a pow n
+
+    def divide(a: QuotientField[T], b: QuotientField[T]) = a / b
+    def unit(a: QuotientField[T]) = if (equiv(a, 0)) 1 else a
+
+    def gcd(a: QuotientField[T], b: QuotientField[T]) =
+        if (equiv(a, 0) && equiv(b, 0)) 0 else 1
+
+    def content(xs: Vector[QuotientField[T]]) = xs.reduceLeft(gcd)
+}
+
+trait QuotientFieldOrdering[T] extends Ordering[QuotientField[T]] {
+    implicit val nToRingT: Int => T
+    implicit val orderingT: Ordering[T]
+
+    def compare(x: QuotientField[T], y: QuotientField[T]): Int =
+        orderingT.compare((x - y).num, 0)
 }
 
 object QuotientField {
     def normalize[T](num: T, denom: T)(
         implicit gcdDomain: GcdDomainTrait[T],
-        ordering: Ordering[T],
         nToRing: Int => T
     ): (T, T) = {
-        if (ordering.equiv(denom, 0)) {
+        if (gcdDomain.equiv(denom, 0)) {
             throw new ArithmeticException("divide by zero")
         }
-        if (ordering.equiv(num, 0)) {
+        if (gcdDomain.equiv(num, 0)) {
             (0, 1)
-        } else if (ordering.lt(denom, 0)) {
-            normalize(
-                gcdDomain.negate(num),
-                gcdDomain.negate(denom)
-            )
-        } else if (ordering.lt(num, 0)) {
-            val (n, d) = normalize(gcdDomain.negate(num), denom)
-            (gcdDomain.negate(n), d)
         } else {
-            val g = gcdDomain.gcd(num, denom)
-            (gcdDomain.divide(num, g), gcdDomain.divide(denom, g))
+            val (numU, numV) = gcdDomain.normalize(num)
+            val (denomU, denomV) = gcdDomain.normalize(denom)
+            val g = gcdDomain.gcd(numV, denomV)
+            (
+                gcdDomain.divide(gcdDomain.divide(num, g), denomU),
+                gcdDomain.divide(denomV, g)
+            )
         }
     }
 
     def apply[T](num: T, denom: T)(
         implicit gcdDomain: GcdDomainTrait[T],
-        ordering: Ordering[T],
         nToRing: Int => T
     ): QuotientField[T] = {
         val (n, d) = normalize(num, denom)
@@ -86,35 +115,26 @@ object QuotientField {
 
         implicit def sToQuotientField[S, T](s: S)(
             implicit gcdDomain: GcdDomainTrait[T],
-            ordering: Ordering[T],
             nToRing: Int => T,
             sToT: S => T
         ): QuotientField[T] = QuotientField(sToT(s), 1)
 
         def quotientField[T](
-            implicit gcdDomain: GcdDomainTrait[T],
-            ordering: Ordering[T],
-            nToRing: Int => T
-        ) = new GcdDomainTrait[QuotientField[T]]
-        with Ordering[QuotientField[T]] {
-            def compare(x: QuotientField[T], y: QuotientField[T]): Int =
-                ordering.compare((x - y).num, 0)
+            implicit gcdDomainT: GcdDomainTrait[T],
+            nToRingT: Int => T
+        ) = new QuotientFieldGcdDomainTrait[T] with QuotientFieldEqTrait[T] {
+            implicit val nToRing = sToQuotientField(_)(gcdDomainT, nToRingT, nToRingT)
+            implicit val ring = gcdDomainT
+        }
 
-            val zero = 0
-            val one = 1
-
-            def add(a: QuotientField[T], b: QuotientField[T]) = a + b
-            def negate(a: QuotientField[T]) = -a
-            def times(a: QuotientField[T], b: QuotientField[T]) = a * b
-            def timesN(a: QuotientField[T], n: Int) = a * n
-            def pow(a: QuotientField[T], n: Int) = a pow n
-
-            def divide(a: QuotientField[T], b: QuotientField[T]) = a / b
-
-            def gcd(a: QuotientField[T], b: QuotientField[T]) =
-                if (equiv(a, 0) && equiv(b, 0)) 0 else 1
-
-            def content(xs: Vector[QuotientField[T]]) = xs.reduceLeft(gcd)
+        def comparableQuotientField[T](
+            implicit gcdDomainT: GcdDomainTrait[T],
+            orderingTT: Ordering[T],
+            nToRingTT: Int => T
+        ) = new QuotientFieldGcdDomainTrait[T] with QuotientFieldOrdering[T] {
+            implicit val nToRing = sToQuotientField(_)(gcdDomainT, nToRingT, nToRingT)
+            implicit val orderingT = orderingTT
+            implicit val nToRingT = nToRingTT
         }
     }
 }
