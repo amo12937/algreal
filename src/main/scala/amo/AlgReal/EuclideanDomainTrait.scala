@@ -28,10 +28,9 @@ trait EuclideanDomainTrait[T] extends GcdDomainTrait[T] {
     /**
      * calculate a^n mod m
      */
-    def powMod(aa: T, nn: Int, m: T): T = {
-        def tailRec(n: Int, acc: T, a: T): T = if (n == 0) acc else {
-            val q = n / 2
-            val r = n % 2
+    def powMod(aa: T, nn: BigInt, m: T): T = {
+        def tailRec(n: BigInt, acc: T, a: T): T = if (n == 0) acc else {
+            val (q, r) = n /% 2
             tailRec(
                 q,
                 if (r == 0) acc else mod(times(acc, a), m),

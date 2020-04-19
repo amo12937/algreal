@@ -239,6 +239,12 @@ object Unipoly {
         implicit gcdDomainT: GcdDomainTrait[T]
     ): Unipoly[T] = Unipoly(cs.toVector)
 
+    def zero[T](implicit gcdDomainT: GcdDomainTrait[T]) = Unipoly() // 0
+    def one[T](implicit gcdDomainT: GcdDomainTrait[T]) = Unipoly(gcdDomainT.one) // 1
+    def ind[T](implicit gcdDomainT: GcdDomainTrait[T]) = Unipoly(
+        gcdDomainT.zero, gcdDomainT.one
+    ) // x
+
     def makeUnipoly[T](
         implicit gcdDomainT: GcdDomainTrait[T]
     ) = new EuclideanDomainTrait[Unipoly[T]] {
@@ -246,8 +252,8 @@ object Unipoly {
 
         def equiv(a: Unipoly[T], b: Unipoly[T]) = a == b
 
-        val zero = Unipoly()
-        val one = Unipoly(1)
+        val zero = Unipoly.zero
+        val one = Unipoly.one
 
         def add(a: Unipoly[T], b: Unipoly[T]) = a + b
         def negate(a: Unipoly[T]) = -a
