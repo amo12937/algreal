@@ -23,7 +23,7 @@ object BigInteger {
                 def pow(a: BigInt, n: Int) = a pow n
 
                 def divide(a: BigInt, b: BigInt) = a / b
-                def unit(a: BigInt) = a.signum
+                def unit(a: BigInt) = if (a == 0) 1 else  a.signum
 
                 def divMod(a: BigInt, b: BigInt) = a /% b
                 def mod(a: BigInt, b: BigInt) = a % b

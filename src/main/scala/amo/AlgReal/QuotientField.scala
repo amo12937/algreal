@@ -81,6 +81,12 @@ trait QuotientFieldOrdering[T] extends Ordering[QuotientField[T]] {
         orderingT.compare((x - y).num, 0)
 }
 
+trait QuotientFieldCreatorTrait[T] {
+    implicit val gcdDomainT: GcdDomainTrait[T]
+    implicit val nToRingT: Int => T
+    def create(num: T, denom: T): QuotientField[T] = QuotientField(num, denom)
+}
+
 object QuotientField {
     def normalize[T](num: T, denom: T)(
         implicit gcdDomain: GcdDomainTrait[T],
@@ -120,21 +126,28 @@ object QuotientField {
         ): QuotientField[T] = QuotientField(sToT(s), 1)
 
         def quotientField[T](
-            implicit gcdDomainT: GcdDomainTrait[T],
-            nToRingT: Int => T
-        ) = new QuotientFieldGcdDomainTrait[T] with QuotientFieldEqTrait[T] {
-            implicit val nToRing = sToQuotientField(_)(gcdDomainT, nToRingT, nToRingT)
-            implicit val ring = gcdDomainT
+            implicit gcdDomainTT: GcdDomainTrait[T],
+            nToRingTT: Int => T
+        ) = new QuotientFieldGcdDomainTrait[T]
+        with QuotientFieldEqTrait[T]
+        with QuotientFieldCreatorTrait[T] {
+            val nToRing = sToQuotientField
+            val ring = gcdDomainTT
+            val gcdDomainT = gcdDomainTT
+            val nToRingT = nToRingTT
         }
 
         def comparableQuotientField[T](
-            implicit gcdDomainT: GcdDomainTrait[T],
+            implicit gcdDomainTT: GcdDomainTrait[T],
             orderingTT: Ordering[T],
             nToRingTT: Int => T
-        ) = new QuotientFieldGcdDomainTrait[T] with QuotientFieldOrdering[T] {
-            implicit val nToRing = sToQuotientField(_)(gcdDomainT, nToRingT, nToRingT)
-            implicit val orderingT = orderingTT
-            implicit val nToRingT = nToRingTT
+        ) = new QuotientFieldGcdDomainTrait[T]
+        with QuotientFieldOrdering[T]
+        with QuotientFieldCreatorTrait[T] {
+            val nToRing = sToQuotientField
+            val orderingT = orderingTT
+            val gcdDomainT = gcdDomainTT
+            val nToRingT = nToRingTT
         }
     }
 }

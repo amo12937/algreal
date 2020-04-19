@@ -73,6 +73,20 @@ class BigIntegerSpec extends AnyWordSpec with Matchers {
         }
     }
 
+    "unit" should {
+        "return 1 if a > 0" in {
+            bigInt.unit(1) should be(1)
+        }
+
+        "return 1 if a == 0" in {
+            bigInt.unit(0) should be(1)
+        }
+
+        "return -1 if a < 0" in {
+            bigInt.unit(-1) should be(-1)
+        }
+    }
+
     "bigInt.gcd" should {
         "return a greatest common divisor" in {
             bigInt.gcd(12, 18) should be(6)

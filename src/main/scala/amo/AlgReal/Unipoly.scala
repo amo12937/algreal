@@ -26,9 +26,10 @@ class Unipoly[T](val cs: Vector[T])(
         }
     )
 
-    def addT(t: T): Unipoly[T] =
-        if (isZero) Unipoly(t)
-        else Unipoly(cs.updated(0, t))
+    def addT(t: T): Unipoly[T] = cs match {
+        case Vector() => Unipoly(t)
+        case head +: tail => Unipoly(gcdDomain.add(head, t) +: tail)
+    }
 
     def unary_- = Unipoly(cs.map(gcdDomain.negate))
 
@@ -240,4 +241,12 @@ object Unipoly {
         implicit gcdDomain: GcdDomainTrait[T],
         nToRing: Int => T
     ): Unipoly[T] = Unipoly(cs.toVector)
+
+    //trait implicits {
+    //    def unipolyGcdDomain[T](
+    //        implicit gcdDomain: GcdDomainTrait[T],
+    //        nToRing: Int => T
+    //    ) = new EuclideanDomainTrait[Unipoly[T]] {
+    //    }
+    //}
 }
