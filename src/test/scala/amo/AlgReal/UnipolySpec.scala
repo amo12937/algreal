@@ -3,6 +3,7 @@ package amo.AlgReal
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
+import amo.AlgReal.Field.QuotientField
 import amo.AlgReal.implicits._
 
 class UnipolySpec extends AnyWordSpec with Matchers {

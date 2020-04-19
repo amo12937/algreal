@@ -2,6 +2,8 @@ package amo.AlgReal
 
 import scala.math.Ordering
 
+import amo.AlgReal.Field.QuotientField
+
 object BigInteger {
     trait implicits {
         this: QuotientField.implicits with Unipoly.implicits =>
