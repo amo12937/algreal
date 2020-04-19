@@ -62,6 +62,12 @@ class Unipoly[T](val cs: Vector[T])(
         gcdDomain.add(c, gcdDomain.times(res, t))
     }
 
+    def valueAt[S](s: S)(
+        implicit tToS: T => S,
+        gcdDomainS: GcdDomainTrait[S],
+        nToRingS: Int => S
+    ): S = mapCoeff(tToS).valueAt(s)
+
     def composition(g: Unipoly[T]): Unipoly[T] =
         if (g.isZero) Unipoly()
         else cs.foldRight(Unipoly()) { (c, res) =>
@@ -200,8 +206,8 @@ class Unipoly[T](val cs: Vector[T])(
     def squareFree: Unipoly[T] = divide(gcd(diff))
 
     def mapCoeff[S](f: T => S)(
-        implicit gcdDomain: GcdDomainTrait[S],
-        nToRing: Int => S
+        implicit gcdDomainS: GcdDomainTrait[S],
+        nToRingS: Int => S
     ): Unipoly[S] = Unipoly(cs.map(f))
 
     def canEqual(other: Any): Boolean = other.isInstanceOf[Unipoly[T]]

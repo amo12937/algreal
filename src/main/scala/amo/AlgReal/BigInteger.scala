@@ -4,6 +4,7 @@ import scala.math.Ordering
 
 object BigInteger {
     trait implicits {
+        this: QuotientField.implicits =>
         implicit val bigInt =
             new EuclideanDomainTrait[BigInt]
             with Ordering[BigInt] {
@@ -28,5 +29,7 @@ object BigInteger {
                 def gcd(a: BigInt, b: BigInt) = a gcd b
                 def content(xs: Vector[BigInt]) = xs.foldLeft(BigInt(0))(gcd)
             }
+
+        implicit val rational = quotientField[BigInt]
     }
 }

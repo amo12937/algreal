@@ -4,7 +4,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 class BigIntegerSpec extends AnyWordSpec with Matchers {
-    object implicits extends BigInteger.implicits
+    object implicits extends BigInteger.implicits with QuotientField.implicits
     import implicits._
 
     "bigInt.compare" should {

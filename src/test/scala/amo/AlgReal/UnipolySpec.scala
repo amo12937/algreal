@@ -4,7 +4,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 class UnipolySpec extends AnyWordSpec with Matchers {
-    object implicits extends BigInteger.implicits
+    object implicits extends BigInteger.implicits with QuotientField.implicits
     import implicits._
 
     "+" should {
@@ -19,6 +19,20 @@ class UnipolySpec extends AnyWordSpec with Matchers {
         "return minus value of the supplied" in {
             val v = Unipoly[BigInt](1, 2, 3)
             -v should be(Unipoly[BigInt](-1, -2, -3))
+        }
+    }
+
+    "valueAt" should {
+        "return 2 if supllied 1 to x + 1" in {
+            val f = Unipoly[BigInt](1, 1)
+            val actual: BigInt = f.valueAt(1)
+            actual should be(2)
+        }
+
+        "return 3/2 if supplied 1/2 to x + 1" in {
+            val f = Unipoly[BigInt](1, 1)
+            val actual = f.valueAt(QuotientField[BigInt](1, 2))
+            actual should be(QuotientField[BigInt](3, 2))
         }
     }
 
@@ -38,7 +52,7 @@ class UnipolySpec extends AnyWordSpec with Matchers {
 
         "return g if f is zero" in {
             val g = Unipoly[BigInt](-1, 0, 4) // 4x^2 - 1
-            Unipoly() gcd g should be(g)
+            Unipoly[BigInt]() gcd g should be(g)
         }
     }
 }
