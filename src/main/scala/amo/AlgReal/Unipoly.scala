@@ -2,14 +2,16 @@ package amo.AlgReal
 
 import java.lang.ArithmeticException
 
+import amo.AlgReal.Field.QuotientField
+
 class Unipoly[T](val cs: Vector[T])(
-    implicit gcdDomain: GcdDomainTrait[T],
-    nToRing: Int => T
+    implicit gcdDomainT: GcdDomainTrait[T]
 ) extends Equals {
+    implicit val nToRingT = gcdDomainT.fromInt _
     def isZero: Boolean = cs.length <= 0
 
     override def toString: String =
-        if (isZero) s"[${nToRing(0).toString}]"
+        if (isZero) s"[${nToRingT(0).toString}]"
         else s"[${cs.mkString(", ")}]"
 
     lazy val degree: Closure[Int] =
@@ -21,17 +23,17 @@ class Unipoly[T](val cs: Vector[T])(
     lazy val leadingCoefficient: T = cs.lastOption getOrElse 0
 
     def + (rhs: Unipoly[T]): Unipoly[T] = Unipoly(
-        cs.zipAll(rhs.cs, nToRing(0), nToRing(0)).map {
-            case (l, r) => gcdDomain.add(l, r)
+        cs.zipAll(rhs.cs, nToRingT(0), nToRingT(0)).map {
+            case (l, r) => gcdDomainT.add(l, r)
         }
     )
 
     def addT(t: T): Unipoly[T] = cs match {
         case Vector() => Unipoly(t)
-        case head +: tail => Unipoly(gcdDomain.add(head, t) +: tail)
+        case head +: tail => Unipoly(gcdDomainT.add(head, t) +: tail)
     }
 
-    def unary_- = Unipoly(cs.map(gcdDomain.negate))
+    def unary_- = Unipoly(cs.map(gcdDomainT.negate))
 
     def - (rhs: Unipoly[T]): Unipoly[T] = this + (-rhs)
 
@@ -40,18 +42,18 @@ class Unipoly[T](val cs: Vector[T])(
         else rhs.cs.foldRight(Unipoly())((c, res) => res.shift() + scale(c))
 
     def shift(n: Int = 1): Unipoly[T] = Unipoly(
-        Vector.fill(n)(nToRing(0)) ++ cs
+        Vector.fill(n)(nToRingT(0)) ++ cs
     )
 
     def scale(c: T): Unipoly[T] =
-        if (gcdDomain.equiv(c, 0)) Unipoly()
-        else Unipoly(cs.map(gcdDomain.times(_, c)))
+        if (gcdDomainT.equiv(c, 0)) Unipoly()
+        else Unipoly(cs.map(gcdDomainT.times(_, c)))
 
-    def unscale(c: T): Unipoly[T] = Unipoly(cs.map(gcdDomain.divide(_, c)))
+    def unscale(c: T): Unipoly[T] = Unipoly(cs.map(gcdDomainT.divide(_, c)))
 
     def toMonic(): Unipoly[T] = unscale(leadingCoefficient)
 
-    def isMonic(): Boolean = gcdDomain.equiv(leadingCoefficient, 1)
+    def isMonic(): Boolean = gcdDomainT.equiv(leadingCoefficient, 1)
 
     def pow(n: Int): Unipoly[T] =
         if (n < 0) throw new ArithmeticException("Negative exponent")
@@ -59,15 +61,14 @@ class Unipoly[T](val cs: Vector[T])(
         else if (n % 2 == 0) (this * this).pow(n / 2)
         else this.pow(n - 1) * this
 
-    def valueAt(t: T): T = cs.foldRight(nToRing(0)){ (c, res) =>
-        gcdDomain.add(c, gcdDomain.times(res, t))
+    def valueAt(t: T): T = cs.foldRight(nToRingT(0)){ (c, res) =>
+        gcdDomainT.add(c, gcdDomainT.times(res, t))
     }
 
-    def valueAt[S](s: S)(
-        implicit tToS: T => S,
-        gcdDomainS: GcdDomainTrait[S],
-        nToRingS: Int => S
-    ): S = mapCoeff(tToS).valueAt(s)
+    def valueAt(q: QuotientField[T])(
+        implicit tToF: T => QuotientField[T],
+        gcdDomainF: GcdDomainTrait[QuotientField[T]],
+    ): QuotientField[T] = mapCoeff(tToF).valueAt(q)
 
     def composition(g: Unipoly[T]): Unipoly[T] =
         if (g.isZero) Unipoly()
@@ -75,11 +76,11 @@ class Unipoly[T](val cs: Vector[T])(
             res * g addT c
         }
 
-    def content: T = gcdDomain.content(cs)
+    def content: T = gcdDomainT.content(cs)
 
     def contentAndPrimitivePart: (T, Unipoly[T]) = {
         val c = content
-        if (gcdDomain.equiv(c, 1)) (c, this)
+        if (gcdDomainT.equiv(c, 1)) (c, this)
         else (c, unscale(c))
     }
 
@@ -110,7 +111,7 @@ class Unipoly[T](val cs: Vector[T])(
                 def tailRec(
                     q: Unipoly[T], r: Unipoly[T], i: Int
                 ): (Unipoly[T], Unipoly[T]) = if (r.degree < g.degree) {
-                    val s = gcdDomain.pow(b, l - i)
+                    val s = gcdDomainT.pow(b, l - i)
                     (q.scale(s), r.scale(s))
                 } else {
                     val p = Unipoly(r.cs.drop(gd))
@@ -145,14 +146,14 @@ class Unipoly[T](val cs: Vector[T])(
             if (rem.isZero) Iterator.empty
             else {
                 val c = f.leadingCoefficient
-                val psi2 = gcdDomain.divide(
-                    gcdDomain.pow(gcdDomain.negate(c), d),
-                    gcdDomain.pow(psi, d - 1)
+                val psi2 = gcdDomainT.divide(
+                    gcdDomainT.pow(gcdDomainT.negate(c), d),
+                    gcdDomainT.pow(psi, d - 1)
                 )
                 val d2 = f.degreeInt - g.degreeInt
-                val beta = gcdDomain.times(
-                    gcdDomain.negate(c),
-                    gcdDomain.pow(psi2, d2)
+                val beta = gcdDomainT.times(
+                    gcdDomainT.negate(c),
+                    gcdDomainT.pow(psi2, d2)
                 )
                 val f2 = g
                 val g2 = rem.unscale(beta)
@@ -163,7 +164,7 @@ class Unipoly[T](val cs: Vector[T])(
         if (rhs.isZero) Iterator.empty
         else {
             val d = degreeInt - rhs.degreeInt
-            val beta = nToRing(2 * (d % 2) - 1)
+            val beta = nToRingT(2 * (d % 2) - 1)
             val g = pseudoMod(rhs).scale(beta)
             if (g.isZero) Iterator.empty
             else Iterator((beta, g)) ++ tailRec(-1, d, rhs, g)
@@ -180,7 +181,7 @@ class Unipoly[T](val cs: Vector[T])(
     def gcd(g: Unipoly[T]): Unipoly[T] = {
         val (fc, fp) = contentAndPrimitivePart
         val (gc, gp) = g.contentAndPrimitivePart
-        fp.gcdSubresultantPRS(gp).primitivePart.scale(gcdDomain.gcd(fc, gc))
+        fp.gcdSubresultantPRS(gp).primitivePart.scale(gcdDomainT.gcd(fc, gc))
     }
 
     def divide(g: Unipoly[T]): Unipoly[T] = {
@@ -200,15 +201,14 @@ class Unipoly[T](val cs: Vector[T])(
 
     def diff: Unipoly[T] = if (isZero) this else Unipoly(
         cs.zipWithIndex.map {
-            case (c, i) => gcdDomain.timesN(c, i)
+            case (c, i) => gcdDomainT.timesN(c, i)
         }.drop(1)
     )
 
     def squareFree: Unipoly[T] = divide(gcd(diff))
 
     def mapCoeff[S](f: T => S)(
-        implicit gcdDomainS: GcdDomainTrait[S],
-        nToRingS: Int => S
+        implicit gcdDomainS: GcdDomainTrait[S]
     ): Unipoly[S] = Unipoly(cs.map(f))
 
     def canEqual(other: Any): Boolean = other.isInstanceOf[Unipoly[T]]
@@ -217,7 +217,7 @@ class Unipoly[T](val cs: Vector[T])(
             rhs.canEqual(this) &&
             cs.length == rhs.cs.length &&
             cs.zip(rhs.cs).forall {
-                case (l, r) => gcdDomain.equiv(l, r)
+                case (l, r) => gcdDomainT.equiv(l, r)
             }
         case _ => false
     }
@@ -225,37 +225,34 @@ class Unipoly[T](val cs: Vector[T])(
 
 object Unipoly {
     def normalize[T](cs: Vector[T])(
-        implicit eqOp: EqTrait[T],
-        nToRing: Int => T
+        implicit ring: RingTrait[T]
     ): Vector[T] = cs match {
-        case heads :+ c if (eqOp.equiv(c, 0)) => normalize(heads)
+        case heads :+ c if (ring.equiv(c, ring.zero)) => normalize(heads)
         case _ => cs
     }
 
     def apply[T](cs: Vector[T])(
-        implicit gcdDomain: GcdDomainTrait[T],
-        nToRing: Int => T
+        implicit gcdDomainT: GcdDomainTrait[T]
     ): Unipoly[T] = new Unipoly(normalize(cs))
 
     def apply[T](cs: T*)(
-        implicit gcdDomain: GcdDomainTrait[T],
-        nToRing: Int => T
+        implicit gcdDomainT: GcdDomainTrait[T]
     ): Unipoly[T] = Unipoly(cs.toVector)
 
     def makeUnipoly[T](
-        implicit gcdDomainT: GcdDomainTrait[T],
-        nToRingT: Int => T,
-        nToRing: Int => Unipoly[T]
+        implicit gcdDomainT: GcdDomainTrait[T]
     ) = new EuclideanDomainTrait[Unipoly[T]] {
+        implicit val nToRing = gcdDomainT.fromInt _
+
         def equiv(a: Unipoly[T], b: Unipoly[T]) = a == b
 
-        val zero = 0
-        val one = 1
+        val zero = Unipoly()
+        val one = Unipoly(1)
 
         def add(a: Unipoly[T], b: Unipoly[T]) = a + b
         def negate(a: Unipoly[T]) = -a
         def times(a: Unipoly[T], b: Unipoly[T]) = a * b
-        def timesN(a: Unipoly[T], n: Int) = a * n
+        def timesN(a: Unipoly[T], n: Int) = a scale n
         def pow(a: Unipoly[T], n: Int) = a pow n
 
         def divide(a: Unipoly[T], b: Unipoly[T]) = a divide b
@@ -274,10 +271,8 @@ object Unipoly {
     trait implicits {
         import scala.language.implicitConversions
 
-        implicit def sToUnipoly[S, T](s: S)(
-            implicit gcdDomainT: GcdDomainTrait[T],
-            nToRingT: Int => T,
-            sToT: S => T
-        ): Unipoly[T] = Unipoly(sToT(s))
+        implicit def tToUnipoly[T](t: T)(
+            implicit gcdDomainT: GcdDomainTrait[T]
+        ): Unipoly[T] = Unipoly(t)
     }
 }

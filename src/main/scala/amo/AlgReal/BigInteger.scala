@@ -6,7 +6,6 @@ import amo.AlgReal.Field.QuotientField
 
 object BigInteger {
     trait implicits {
-        this: Unipoly.implicits =>
         implicit val bigInt =
             new EuclideanDomainTrait[BigInt]
             with Ordering[BigInt] {
@@ -34,6 +33,9 @@ object BigInteger {
             }
 
         implicit val rational = QuotientField.makeComparableQuotientField[BigInt]
+        implicit val nToRationalFieldBigInt = rational.fromInt _
+
         implicit val iUnipoly = Unipoly.makeUnipoly[BigInt]
+        implicit val nToUnipolyBigInt = iUnipoly.fromInt _
     }
 }

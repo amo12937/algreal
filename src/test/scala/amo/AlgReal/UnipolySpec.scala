@@ -72,4 +72,12 @@ class UnipolySpec extends AnyWordSpec with Matchers {
             Unipoly[BigInt]() gcd g should be(g)
         }
     }
+
+    "implicits" should {
+        "allow us to add T value to the Unipoly" in {
+            val f = Unipoly[BigInt](0, 1) // x
+            val t = BigInt(1)
+            f + t should be(Unipoly[BigInt](1, 1))
+        }
+    }
 }

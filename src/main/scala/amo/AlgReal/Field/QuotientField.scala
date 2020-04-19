@@ -5,25 +5,25 @@ import java.lang.ArithmeticException
 import amo.AlgReal.{ EqTrait, GcdDomainTrait, RingTrait }
 
 class QuotientField[T](val num: T, val denom: T)(
-    implicit gcdDomain: GcdDomainTrait[T]
+    implicit gcdDomainT: GcdDomainTrait[T]
 ) extends Equals {
-    implicit val nToRingT = gcdDomain.fromInt _
+    implicit val nToRingT = gcdDomainT.fromInt _
 
     def + (rhs: QuotientField[T]): QuotientField[T] = QuotientField(
-        gcdDomain.add(
-            gcdDomain.times(num, rhs.denom),
-            gcdDomain.times(denom, rhs.num)
+        gcdDomainT.add(
+            gcdDomainT.times(num, rhs.denom),
+            gcdDomainT.times(denom, rhs.num)
         ),
-        gcdDomain.times(denom, rhs.denom)
+        gcdDomainT.times(denom, rhs.denom)
     )
 
-    def unary_- = QuotientField(gcdDomain.negate(num), denom)
+    def unary_- = QuotientField(gcdDomainT.negate(num), denom)
 
     def - (rhs: QuotientField[T]): QuotientField[T] = this + (-rhs)
 
     def * (rhs: QuotientField[T]): QuotientField[T] = QuotientField(
-        gcdDomain.times(num, rhs.num),
-        gcdDomain.times(denom, rhs.denom)
+        gcdDomainT.times(num, rhs.num),
+        gcdDomainT.times(denom, rhs.denom)
     )
 
     def inverse: QuotientField[T] = QuotientField(denom, num)
@@ -31,20 +31,20 @@ class QuotientField[T](val num: T, val denom: T)(
     def / (rhs: QuotientField[T]): QuotientField[T] = this * rhs.inverse
 
     def pow(n: Int): QuotientField[T] = QuotientField(
-        gcdDomain.pow(num, n),
-        gcdDomain.pow(denom, n)
+        gcdDomainT.pow(num, n),
+        gcdDomainT.pow(denom, n)
     )
 
     override def toString: String =
-        if (gcdDomain.equiv(denom, 1)) num.toString
+        if (gcdDomainT.equiv(denom, 1)) num.toString
         else s"${num.toString} / ${denom.toString}"
 
     def canEqual(rhs: Any): Boolean = rhs.isInstanceOf[QuotientField[T]]
     override def equals(rhs: Any): Boolean = rhs match {
         case r: QuotientField[T] =>
             r.canEqual(this) &&
-            gcdDomain.equiv(num, r.num) &&
-            gcdDomain.equiv(denom, r.denom)
+            gcdDomainT.equiv(num, r.num) &&
+            gcdDomainT.equiv(denom, r.denom)
         case _ => false
     }
 }
@@ -87,26 +87,26 @@ trait QuotientFieldCreatorTrait[T] {
 
 object QuotientField {
     def normalize[T](num: T, denom: T)(
-        implicit gcdDomain: GcdDomainTrait[T]
+        implicit gcdDomainT: GcdDomainTrait[T]
     ): (T, T) = {
-        implicit val nToRingT = gcdDomain.fromInt _
-        if (gcdDomain.equiv(denom, 0)) {
+        implicit val nToRingT = gcdDomainT.fromInt _
+        if (gcdDomainT.equiv(denom, 0)) {
             throw new ArithmeticException("divide by zero")
         }
-        if (gcdDomain.equiv(num, 0)) {
+        if (gcdDomainT.equiv(num, 0)) {
             (0, 1)
         } else {
-            val g = gcdDomain.gcd(num, denom)
-            val (denomU, denomV) = gcdDomain.normalize(gcdDomain.divide(denom, g))
+            val g = gcdDomainT.gcd(num, denom)
+            val (denomU, denomV) = gcdDomainT.normalize(gcdDomainT.divide(denom, g))
             (
-                gcdDomain.divide(gcdDomain.divide(num, g), denomU),
+                gcdDomainT.divide(gcdDomainT.divide(num, g), denomU),
                 denomV
             )
         }
     }
 
     def apply[T](num: T, denom: T)(
-        implicit gcdDomain: GcdDomainTrait[T]
+        implicit gcdDomainT: GcdDomainTrait[T]
     ): QuotientField[T] = {
         val (n, d) = normalize(num, denom)
         new QuotientField(n, d)
@@ -131,5 +131,13 @@ object QuotientField {
         val gcdDomainT = implicitlyGcdDomainT
         val orderingT = implicitlyOrderingT
         val nToRingT = implicitlyGcdDomainT.fromInt
+    }
+
+    trait implicits {
+        import scala.language.implicitConversions
+
+        implicit def tToQuotientField[T](t: T)(
+            implicit gcdDomainT: GcdDomainTrait[T]
+        ): QuotientField[T] = QuotientField(t, gcdDomainT.one)
     }
 }
