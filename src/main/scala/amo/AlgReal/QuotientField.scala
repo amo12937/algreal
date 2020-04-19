@@ -100,12 +100,11 @@ object QuotientField {
         if (gcdDomain.equiv(num, 0)) {
             (0, 1)
         } else {
-            val (numU, numV) = gcdDomain.normalize(num)
-            val (denomU, denomV) = gcdDomain.normalize(denom)
-            val g = gcdDomain.gcd(numV, denomV)
+            val g = gcdDomain.gcd(num, denom)
+            val (denomU, denomV) = gcdDomain.normalize(gcdDomain.divide(denom, g))
             (
                 gcdDomain.divide(gcdDomain.divide(num, g), denomU),
-                gcdDomain.divide(denomV, g)
+                denomV
             )
         }
     }
@@ -118,6 +117,33 @@ object QuotientField {
         new QuotientField(n, d)
     }
 
+    def makeQuotientField[T](
+        implicit implicitlyGcdDomainT: GcdDomainTrait[T],
+        implicitlyNToRingT: Int => T,
+        implicitlyNToRing: Int => QuotientField[T]
+    ) = new QuotientFieldEuclideanDomainTrait[T]
+    with QuotientFieldEqTrait[T]
+    with QuotientFieldCreatorTrait[T] {
+        val nToRing = implicitlyNToRing
+        val ring = implicitlyGcdDomainT
+        val gcdDomainT = implicitlyGcdDomainT
+        val nToRingT = implicitlyNToRingT
+    }
+
+    def makeComparableQuotientField[T](
+        implicit implicitlyGcdDomainT: GcdDomainTrait[T],
+        implicitlyOrderingT: Ordering[T],
+        implicitlyNToRingT: Int => T,
+        implicitlyNToRing: Int => QuotientField[T]
+    ) = new QuotientFieldEuclideanDomainTrait[T]
+    with QuotientFieldOrdering[T]
+    with QuotientFieldCreatorTrait[T] {
+        val nToRing = implicitlyNToRing
+        val orderingT = implicitlyOrderingT
+        val gcdDomainT = implicitlyGcdDomainT
+        val nToRingT = implicitlyNToRingT
+    }
+
     trait implicits {
         import scala.language.implicitConversions
 
@@ -126,30 +152,5 @@ object QuotientField {
             nToRing: Int => T,
             sToT: S => T
         ): QuotientField[T] = QuotientField(sToT(s), 1)
-
-        def quotientField[T](
-            implicit gcdDomainTT: GcdDomainTrait[T],
-            nToRingTT: Int => T
-        ) = new QuotientFieldEuclideanDomainTrait[T]
-        with QuotientFieldEqTrait[T]
-        with QuotientFieldCreatorTrait[T] {
-            val nToRing = sToQuotientField
-            val ring = gcdDomainTT
-            val gcdDomainT = gcdDomainTT
-            val nToRingT = nToRingTT
-        }
-
-        def comparableQuotientField[T](
-            implicit gcdDomainTT: GcdDomainTrait[T],
-            orderingTT: Ordering[T],
-            nToRingTT: Int => T
-        ) = new QuotientFieldEuclideanDomainTrait[T]
-        with QuotientFieldOrdering[T]
-        with QuotientFieldCreatorTrait[T] {
-            val nToRing = sToQuotientField
-            val orderingT = orderingTT
-            val gcdDomainT = gcdDomainTT
-            val nToRingT = nToRingTT
-        }
     }
 }

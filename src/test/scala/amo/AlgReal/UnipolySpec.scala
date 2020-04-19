@@ -3,10 +3,9 @@ package amo.AlgReal
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-class UnipolySpec extends AnyWordSpec with Matchers {
-    object implicits extends BigInteger.implicits with QuotientField.implicits
-    import implicits._
+import amo.AlgReal.implicits._
 
+class UnipolySpec extends AnyWordSpec with Matchers {
     "+" should {
         "add to the other Unipoly" in {
             val l = Unipoly[BigInt](1, 2, 3)

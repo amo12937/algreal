@@ -190,7 +190,7 @@ class Unipoly[T](val cs: Vector[T])(
             def tailRec(q: Unipoly[T], r: Unipoly[T]): Unipoly[T] = {
                 if (r.degreeInt < g.degreeInt) q
                 else {
-                    val p = Unipoly(cs.drop(g.degreeInt)).unscale(b)
+                    val p = Unipoly(r.cs.drop(g.degreeInt)).unscale(b)
                     tailRec(q + p, r - g * p)
                 }
             }
@@ -242,6 +242,35 @@ object Unipoly {
         nToRing: Int => T
     ): Unipoly[T] = Unipoly(cs.toVector)
 
+    def makeUnipoly[T](
+        implicit gcdDomainT: GcdDomainTrait[T],
+        nToRingT: Int => T,
+        nToRing: Int => Unipoly[T]
+    ) = new EuclideanDomainTrait[Unipoly[T]] {
+        def equiv(a: Unipoly[T], b: Unipoly[T]) = a == b
+
+        val zero = 0
+        val one = 1
+
+        def add(a: Unipoly[T], b: Unipoly[T]) = a + b
+        def negate(a: Unipoly[T]) = -a
+        def times(a: Unipoly[T], b: Unipoly[T]) = a * b
+        def timesN(a: Unipoly[T], n: Int) = a * n
+        def pow(a: Unipoly[T], n: Int) = a pow n
+
+        def divide(a: Unipoly[T], b: Unipoly[T]) = a divide b
+        def unit(a: Unipoly[T]) = Unipoly(gcdDomainT.unit(a.leadingCoefficient))
+
+        def gcd(a: Unipoly[T], b: Unipoly[T]) = a gcd b
+
+        def divMod(a: Unipoly[T], b: Unipoly[T]) = {
+            val lc = b.leadingCoefficient
+            val f = a.unscale(lc)
+            val g = b.unscale(lc)
+            f.monicDivMod(g)
+        }
+    }
+
     trait implicits {
         import scala.language.implicitConversions
 
@@ -250,33 +279,5 @@ object Unipoly {
             nToRingT: Int => T,
             sToT: S => T
         ): Unipoly[T] = Unipoly(sToT(s))
-
-        def unipolyEuclideanDomain[T](
-            implicit gcdDomain: GcdDomainTrait[T],
-            nToRing: Int => T
-        ) = new EuclideanDomainTrait[Unipoly[T]] {
-            def equiv(a: Unipoly[T], b: Unipoly[T]) = a == b
-
-            val zero = 0
-            val one = 1
-
-            def add(a: Unipoly[T], b: Unipoly[T]) = a + b
-            def negate(a: Unipoly[T]) = -a
-            def times(a: Unipoly[T], b: Unipoly[T]) = a * b
-            def timesN(a: Unipoly[T], n: Int) = a * n
-            def pow(a: Unipoly[T], n: Int) = a pow n
-
-            def divide(a: Unipoly[T], b: Unipoly[T]) = a divide b
-            def unit(a: Unipoly[T]) = Unipoly(gcdDomain.unit(a.leadingCoefficient))
-
-            def gcd(a: Unipoly[T], b: Unipoly[T]) = a gcd b
-
-            def divMod(a: Unipoly[T], b: Unipoly[T]) = {
-                val lc = b.leadingCoefficient
-                val f = a.unscale(lc)
-                val g = b.unscale(lc)
-                f.monicDivMod(g)
-            }
-        }
     }
 }

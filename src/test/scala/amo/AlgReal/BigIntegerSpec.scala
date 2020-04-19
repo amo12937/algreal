@@ -3,10 +3,9 @@ package amo.AlgReal
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-class BigIntegerSpec extends AnyWordSpec with Matchers {
-    object implicits extends BigInteger.implicits with QuotientField.implicits
-    import implicits._
+import amo.AlgReal.implicits._
 
+class BigIntegerSpec extends AnyWordSpec with Matchers {
     "bigInt.compare" should {
         "return -1 if x < y" in {
             bigInt.compare(1, 10) should be(-1)

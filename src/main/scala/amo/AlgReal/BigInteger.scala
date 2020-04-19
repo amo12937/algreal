@@ -4,7 +4,7 @@ import scala.math.Ordering
 
 object BigInteger {
     trait implicits {
-        this: QuotientField.implicits =>
+        this: QuotientField.implicits with Unipoly.implicits =>
         implicit val bigInt =
             new EuclideanDomainTrait[BigInt]
             with Ordering[BigInt] {
@@ -31,6 +31,7 @@ object BigInteger {
                 override def mod(a: BigInt, b: BigInt) = a % b
             }
 
-        implicit val rational = comparableQuotientField[BigInt]
+        implicit val rational = QuotientField.makeComparableQuotientField[BigInt]
+        implicit val iUnipoly = Unipoly.makeUnipoly[BigInt]
     }
 }

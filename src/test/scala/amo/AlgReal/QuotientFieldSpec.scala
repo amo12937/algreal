@@ -4,13 +4,12 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.prop.TableDrivenPropertyChecks
 
+import amo.AlgReal.implicits._
+
 class RationalNumberSpec
 extends AnyWordSpec
 with Matchers
 with TableDrivenPropertyChecks {
-    object implicits extends BigInteger.implicits with QuotientField.implicits
-    import implicits._
-
     "rational.create" should {
         "create rational number" in {
             val cases = Table(
