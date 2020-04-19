@@ -9,11 +9,6 @@ trait RingTrait[T] extends EqTrait[T] {
     def times(a: T, b: T): T
     def timesN(a: T, n: Int): T
     def pow(a: T, n: Int): T
-}
 
-object Ring {
-    trait implicits {
-        import scala.language.implicitConversions
-        implicit def nToRing[T](implicit ring: RingTrait[T]): (Int => T) = ring.timesN(ring.one, _)
-    }
+    def fromInt(n: Int): T = timesN(one, n)
 }

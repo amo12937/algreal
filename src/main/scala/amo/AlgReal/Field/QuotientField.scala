@@ -5,9 +5,10 @@ import java.lang.ArithmeticException
 import amo.AlgReal.{ EqTrait, GcdDomainTrait, RingTrait }
 
 class QuotientField[T](val num: T, val denom: T)(
-    implicit gcdDomain: GcdDomainTrait[T],
-    nToRing: Int => T
+    implicit gcdDomain: GcdDomainTrait[T]
 ) extends Equals {
+    implicit val nToRingT = gcdDomain.fromInt _
+
     def + (rhs: QuotientField[T]): QuotientField[T] = QuotientField(
         gcdDomain.add(
             gcdDomain.times(num, rhs.denom),
@@ -55,15 +56,16 @@ trait QuotientFieldEqTrait[T] extends EqTrait[QuotientField[T]] {
 }
 
 trait QuotientFieldTrait[T] extends FieldTrait[QuotientField[T]] {
-    implicit val nToRing: Int => QuotientField[T]
+    implicit val gcdDomainT: GcdDomainTrait[T]
+    implicit val nToRingT: Int => T
 
-    lazy val zero = 0
-    lazy val one = 1
+    lazy val zero = QuotientField(0, 1)
+    lazy val one = QuotientField(1, 1)
 
     def add(a: QuotientField[T], b: QuotientField[T]) = a + b
     def negate(a: QuotientField[T]) = -a
     def times(a: QuotientField[T], b: QuotientField[T]) = a * b
-    def timesN(a: QuotientField[T], n: Int) = a * n
+    def timesN(a: QuotientField[T], n: Int) = a * QuotientField(n, 1)
     def pow(a: QuotientField[T], n: Int) = a pow n
 
     def divide(a: QuotientField[T], b: QuotientField[T]) = a / b
@@ -85,9 +87,9 @@ trait QuotientFieldCreatorTrait[T] {
 
 object QuotientField {
     def normalize[T](num: T, denom: T)(
-        implicit gcdDomain: GcdDomainTrait[T],
-        nToRing: Int => T
+        implicit gcdDomain: GcdDomainTrait[T]
     ): (T, T) = {
+        implicit val nToRingT = gcdDomain.fromInt _
         if (gcdDomain.equiv(denom, 0)) {
             throw new ArithmeticException("divide by zero")
         }
@@ -104,47 +106,30 @@ object QuotientField {
     }
 
     def apply[T](num: T, denom: T)(
-        implicit gcdDomain: GcdDomainTrait[T],
-        nToRing: Int => T
+        implicit gcdDomain: GcdDomainTrait[T]
     ): QuotientField[T] = {
         val (n, d) = normalize(num, denom)
         new QuotientField(n, d)
     }
 
     def makeQuotientField[T](
-        implicit implicitlyGcdDomainT: GcdDomainTrait[T],
-        implicitlyNToRingT: Int => T,
-        implicitlyNToRing: Int => QuotientField[T]
+        implicit implicitlyGcdDomainT: GcdDomainTrait[T]
     ) = new QuotientFieldTrait[T]
     with QuotientFieldEqTrait[T]
     with QuotientFieldCreatorTrait[T] {
-        val nToRing = implicitlyNToRing
-        val ring = implicitlyGcdDomainT
         val gcdDomainT = implicitlyGcdDomainT
-        val nToRingT = implicitlyNToRingT
+        val ring = implicitlyGcdDomainT
+        val nToRingT = implicitlyGcdDomainT.fromInt
     }
 
     def makeComparableQuotientField[T](
         implicit implicitlyGcdDomainT: GcdDomainTrait[T],
-        implicitlyOrderingT: Ordering[T],
-        implicitlyNToRingT: Int => T,
-        implicitlyNToRing: Int => QuotientField[T]
+        implicitlyOrderingT: Ordering[T]
     ) = new QuotientFieldTrait[T]
     with QuotientFieldOrdering[T]
     with QuotientFieldCreatorTrait[T] {
-        val nToRing = implicitlyNToRing
-        val orderingT = implicitlyOrderingT
         val gcdDomainT = implicitlyGcdDomainT
-        val nToRingT = implicitlyNToRingT
-    }
-
-    trait implicits {
-        import scala.language.implicitConversions
-
-        implicit def sToQuotientField[S, T](s: S)(
-            implicit gcdDomain: GcdDomainTrait[T],
-            nToRing: Int => T,
-            sToT: S => T
-        ): QuotientField[T] = QuotientField(sToT(s), 1)
+        val orderingT = implicitlyOrderingT
+        val nToRingT = implicitlyGcdDomainT.fromInt
     }
 }

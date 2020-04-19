@@ -6,7 +6,7 @@ import amo.AlgReal.Field.QuotientField
 
 object BigInteger {
     trait implicits {
-        this: QuotientField.implicits with Unipoly.implicits =>
+        this: Unipoly.implicits =>
         implicit val bigInt =
             new EuclideanDomainTrait[BigInt]
             with Ordering[BigInt] {
