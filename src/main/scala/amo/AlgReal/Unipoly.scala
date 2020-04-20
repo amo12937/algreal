@@ -61,6 +61,8 @@ class Unipoly[T](val cs: Vector[T])(
         else if (n % 2 == 0) (this * this).pow(n / 2)
         else this.pow(n - 1) * this
 
+    def ^ (n: Int): Unipoly[T] = pow(n)
+
     def valueAt(t: T): T = cs.foldRight(nToRingT(0)){ (c, res) =>
         gcdDomainT.add(c, gcdDomainT.times(res, t))
     }

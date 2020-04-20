@@ -26,6 +26,8 @@ class PrimeField(val n: BigInt)(
             modular.p == r.modular.p
         case _ => false
     }
+
+    def toBigInt: BigInt = n
 }
 
 class PrimeFieldModular(val p: BigInt)
