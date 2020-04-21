@@ -3,11 +3,14 @@ package amo.AlgReal.factors
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
+import scala.util.Random
+
 import amo.AlgReal.implicits._
 import amo.AlgReal.Field.PrimeField
 import amo.AlgReal.Unipoly
 
 class HenselSpec extends AnyWordSpec with Matchers {
+    val r = new Random
     "henselLifting2" should {
         "lift 5 -> 25" in {
             implicit val F5 = PrimeField.makePrimeField(5)
@@ -22,7 +25,7 @@ class HenselSpec extends AnyWordSpec with Matchers {
             val h = y + 2
             f.mapCoeff(F5.create) should be(g * h)
 
-            val hensel = new Hensel
+            val hensel = new Hensel(r.nextInt _)
 
             val (g2, h2) = hensel.henselLifting2(2, f, g, h)
             g2 should be(3 * (x^2) + x + 9)

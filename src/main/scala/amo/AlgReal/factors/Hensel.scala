@@ -1,25 +1,28 @@
 package amo.AlgReal.factors
 
-import amo.AlgReal.Field.{ FiniteFieldTrait, PrimeField }
-import amo.AlgReal.{ EuclideanDomainTrait, GcdDomainTrait, Unipoly }
+import scala.math
 
-class Hensel(
-    implicit ff: FiniteFieldTrait[PrimeField],
-    edu: EuclideanDomainTrait[Unipoly[PrimeField]],
-    ig: GcdDomainTrait[BigInt]
+import amo.AlgReal.Field.{ PrimeField, PrimeFieldTrait }
+import amo.AlgReal.{ EuclideanDomainTrait, Unipoly }
+
+class Hensel(rnd: Int => Int)(
+    implicit edi: EuclideanDomainTrait[BigInt]
 ) {
     def mod(m: BigInt, f: Unipoly[BigInt]): Unipoly[BigInt] =
         f.mapCoeff((c) => c % m + (if (c < 0) m else 0))
 
     def henselLifting2(
-        l: BigInt,
+        l: Int,
         f: Unipoly[BigInt],
         gg: Unipoly[PrimeField],
         hh: Unipoly[PrimeField]
+    )(
+        implicit ff: PrimeFieldTrait,
+        edu: EuclideanDomainTrait[Unipoly[PrimeField]]
     ): (Unipoly[BigInt], Unipoly[BigInt]) = {
         val (u, ss, tt) = edu.exgcd(gg, hh)
         def tailRec(
-            i: BigInt,
+            i: Int,
             m: BigInt,
             g: Unipoly[BigInt],
             h: Unipoly[BigInt],
@@ -46,4 +49,59 @@ class Hensel(
             tt.divide(u).mapCoeff(_.toBigInt),
         )
     }
+
+    def henselLifting(
+        l: Int,
+        f: Unipoly[BigInt],
+        gs: Vector[Unipoly[PrimeField]]
+    )(
+        implicit ff: PrimeFieldTrait,
+        edu: EuclideanDomainTrait[Unipoly[PrimeField]]
+    ): Iterator[Unipoly[BigInt]] = gs match {
+        case Vector() => Iterator.empty
+        case Vector(g) => {
+            val p = ff.characteristic(g.leadingCoefficient)
+            val m = p.pow(l)
+            val invLcF = edi.inverseMod(f.leadingCoefficient, m)
+            Iterator.single(
+                mod(m, f.mapCoeff(_ * invLcF))
+            )
+        }
+        case _ => {
+            val (gs1, gs2) = gs.splitAt(gs.length / 2)
+            val g = Unipoly.product(gs1).scale(ff.create(f.leadingCoefficient))
+            val h = Unipoly.product(gs2)
+            val (f1, f2) = henselLifting2(l, f, g, h)
+            henselLifting(l, f1, gs1) ++ henselLifting(l, f2, gs2)
+        }
+    }
+
+    def findL(p: BigInt, bound: BigInt): (Int, BigInt) = {
+        val b = 2 * bound + 1
+        val l = math.ceil(math.log(b.doubleValue) / math.log(p.doubleValue)).toInt
+        val m = p.pow(l)
+        Iterator.iterate((l, m))({
+            case (ll, mm) => (ll + 1, mm * p)
+        }).filter(_._2 > b).buffered.head
+    }
+
+    def factorWithPrime(
+        p: Int,
+        bound: BigInt,
+        f: Unipoly[BigInt]
+    ): Iterator[Unipoly[BigInt]] = {
+        implicit val ff = PrimeField.makePrimeField(p)
+        implicit val edu = Unipoly.makeUnipoly[PrimeField]
+
+        val cz = new CantorZassenhaus(() => ff.create(rnd(p)))
+
+        val fP = f.mapCoeff(ff.create).toMonic()
+        val factorsP = cz.factor(fP).toVector
+        val (l, m) = findL(p, bound)
+        val factors = henselLifting(l, f, factorsP)
+        Iterator.empty
+    }
+
+    //def factorCombinationsModulo(m, bound, k, f, factors)
+
 }

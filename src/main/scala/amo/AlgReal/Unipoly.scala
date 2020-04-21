@@ -247,6 +247,10 @@ object Unipoly {
         gcdDomainT.zero, gcdDomainT.one
     ) // x
 
+    def product[T](fs: Traversable[Unipoly[T]])(
+        implicit gcdDomainT: GcdDomainTrait[T]
+    ) = fs.foldLeft(one)(_ * _)
+
     def makeUnipoly[T](
         implicit gcdDomainT: GcdDomainTrait[T]
     ) = new EuclideanDomainTrait[Unipoly[T]] {
