@@ -2,25 +2,29 @@ package amo.AlgReal.Field
 
 import amo.AlgReal.{ EuclideanDomainTrait, Unipoly }
 
-class PrimeField(val n: BigInt)(
-    implicit val modular: PrimeFieldModular,
+trait PrimeFieldModular {
+    val p: BigInt
+}
+
+class PrimeField[M <: PrimeFieldModular](val n: BigInt)(
+    implicit val modular: M,
     bigIntEuclideanDomain: EuclideanDomainTrait[BigInt]
 ) {
-    def + (rhs: PrimeField) = PrimeField(n + rhs.n)
+    def + (rhs: PrimeField[M]) = PrimeField(n + rhs.n)
     def unary_- = PrimeField(-n)
-    def - (rhs: PrimeField) = PrimeField(n - rhs.n)
-    def * (rhs: PrimeField) = PrimeField(n * rhs.n)
+    def - (rhs: PrimeField[M]) = PrimeField(n - rhs.n)
+    def * (rhs: PrimeField[M]) = PrimeField(n * rhs.n)
     def inverse = {
         val (r, s, _) = bigIntEuclideanDomain.exgcd(n, modular.p)
         PrimeField(if (r < 0) -s else s)
     }
-    def / (rhs: PrimeField) = this * rhs.inverse
+    def / (rhs: PrimeField[M]) = this * rhs.inverse
     def pow(m: Int) = PrimeField(n pow m)
 
     override def toString: String = s"$n (mod ${modular.p})"
-    def canEqual(rhs: Any): Boolean = rhs.isInstanceOf[PrimeField]
+    def canEqual(rhs: Any): Boolean = rhs.isInstanceOf[PrimeField[M]]
     override def equals(rhs: Any): Boolean = rhs match {
-        case r: PrimeField =>
+        case r: PrimeField[M] =>
             r.canEqual(this) &&
             n == r.n &&
             modular.p == r.modular.p
@@ -30,61 +34,62 @@ class PrimeField(val n: BigInt)(
     def toBigInt: BigInt = n
 }
 
-class PrimeFieldModular(val p: BigInt)
-
-trait PrimeFieldFactory {
+trait PrimeFieldFactory[M <: PrimeFieldModular] {
     implicit val bigIntEuclideanDomain: EuclideanDomainTrait[BigInt]
-    implicit val modular: PrimeFieldModular
+    implicit val modular: M
 
-    def create(n: BigInt): PrimeField = PrimeField(n)
+    def create(n: BigInt): PrimeField[M] = PrimeField(n)
 }
 
-trait PrimeFieldTrait extends FiniteFieldTrait[PrimeField] with PrimeFieldFactory {
+trait PrimeFieldTrait[M <: PrimeFieldModular]
+extends FiniteFieldTrait[PrimeField[M]]
+with PrimeFieldFactory[M] {
     implicit val bigIntEuclideanDomain: EuclideanDomainTrait[BigInt]
-    implicit val modular: PrimeFieldModular
+    implicit val modular: M
 
-    def equiv(a: PrimeField, b: PrimeField): Boolean = a == b
+    def equiv(a: PrimeField[M], b: PrimeField[M]): Boolean = a == b
 
     lazy val zero = PrimeField(0)
     lazy val one = PrimeField(1)
 
-    def add(a: PrimeField, b: PrimeField) = a + b
-    def negate(a: PrimeField) = -a
-    def times(a: PrimeField, b: PrimeField) = a * b
-    def timesN(a: PrimeField, n: Int) = a * PrimeField(n)
-    def pow(a: PrimeField, n: Int) = a pow n
+    def add(a: PrimeField[M], b: PrimeField[M]) = a + b
+    def negate(a: PrimeField[M]) = -a
+    def times(a: PrimeField[M], b: PrimeField[M]) = a * b
+    def timesN(a: PrimeField[M], n: Int) = a * PrimeField(n)
+    def pow(a: PrimeField[M], n: Int) = a pow n
 
-    def divide(a: PrimeField, b: PrimeField) = a / b
+    def divide(a: PrimeField[M], b: PrimeField[M]) = a / b
 
-    def order(t: PrimeField) = characteristic(t)
-    def characteristic(t: PrimeField) = modular.p
+    def order(t: PrimeField[M]) = characteristic(t)
+    def characteristic(t: PrimeField[M]) = modular.p
 }
 
 object PrimeField {
-    def apply(n: BigInt)(
-        implicit modular: PrimeFieldModular,
+    def apply[M <: PrimeFieldModular](n: BigInt)(
+        implicit modular: M,
         bigIntEuclideanDomain: EuclideanDomainTrait[BigInt]
-    ): PrimeField =
+    ): PrimeField[M] =
         if (n < 0) new PrimeField(modular.p + (n % modular.p))
         else new PrimeField(n % modular.p)
 
-    def makePrimeField(p: BigInt)(
+    def makePrimeField[M <: PrimeFieldModular](m: M)(
         implicit implicitlyBigIntEuclideanDomain: EuclideanDomainTrait[BigInt]
-    ) = new PrimeFieldTrait {
+    ) = new PrimeFieldTrait[M] {
         val bigIntEuclideanDomain = implicitlyBigIntEuclideanDomain
-        val modular = new PrimeFieldModular(p)
+        val modular = m
     }
 
     trait implicits {
-        implicit val pf: PrimeFieldTrait
+        trait M extends PrimeFieldModular
+        implicit val pf: PrimeFieldTrait[M]
         implicit lazy val nToPf = pf.fromInt _
-        implicit lazy val pfUnipoly = Unipoly.makeUnipoly[PrimeField]
+        implicit lazy val pfUnipoly = Unipoly.makeUnipoly[PrimeField[M]]
         implicit lazy val nToPfUnipoly = pfUnipoly.fromInt _
     }
 
-    def makeImplicits(p: BigInt)(
+    def makeImplicits(prime: BigInt)(
         implicit implicitlyBigIntEuclideanDomain: EuclideanDomainTrait[BigInt]
     ) = new implicits {
-        val pf = makePrimeField(p)
+        val pf = makePrimeField(new M { val p = prime })
     }
 }

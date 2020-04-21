@@ -1,7 +1,7 @@
 package amo.AlgReal.factors
 
 import amo.AlgReal.{ Closure, RingTrait, Unipoly }
-import amo.AlgReal.Field.{ PrimeField, PrimeFieldTrait }
+import amo.AlgReal.Field.{ PrimeFieldModular, PrimeFieldTrait }
 
 object BigPrime {
     def partitions[T](nn: Int, xxs: Vector[T]): Iterator[(Vector[T], Vector[T])] = (nn, xxs) match {
@@ -20,8 +20,8 @@ object BigPrime {
         }
     }
 
-    def coprimeModP(f: Unipoly[BigInt], g: Unipoly[BigInt])(
-        implicit pf: PrimeFieldTrait
+    def coprimeModP[M <: PrimeFieldModular](f: Unipoly[BigInt], g: Unipoly[BigInt])(
+        implicit pf: PrimeFieldTrait[M]
     ): Boolean = {
         val f2 = f.mapCoeff(pf.create)
         val g2 = g.mapCoeff(pf.create)

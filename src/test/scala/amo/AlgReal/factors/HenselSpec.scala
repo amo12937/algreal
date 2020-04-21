@@ -13,13 +13,11 @@ class HenselSpec extends AnyWordSpec with Matchers {
     val r = new Random
     "henselLifting2" should {
         "lift 5 -> 25" in {
-            implicit val F5 = PrimeField.makePrimeField(5)
-            implicit val nToF5 = F5.fromInt _
-            implicit val F5Unipoly = Unipoly.makeUnipoly[PrimeField]
-            implicit val nToF5U = F5Unipoly.fromInt _
+            val F5Implicits = PrimeField.makeImplicits(5)
+            import F5Implicits.{ pf => F5, _}
 
             val x = Unipoly.ind[BigInt]
-            val y = Unipoly.ind[PrimeField]
+            val y = Unipoly.ind[PrimeField[M]]
             val f = 3 * (x^3) + 2 * (x^2) + x + 3
             val g = 3 * (y^2) + y + 4
             val h = y + 2

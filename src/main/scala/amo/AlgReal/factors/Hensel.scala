@@ -2,7 +2,7 @@ package amo.AlgReal.factors
 
 import scala.math
 
-import amo.AlgReal.Field.{ PrimeField, PrimeFieldTrait }
+import amo.AlgReal.Field.{ PrimeField, PrimeFieldModular, PrimeFieldTrait }
 import amo.AlgReal.{ EuclideanDomainTrait, Unipoly }
 
 class Hensel(rnd: Int => Int)(
@@ -11,14 +11,14 @@ class Hensel(rnd: Int => Int)(
     def mod(m: BigInt, f: Unipoly[BigInt]): Unipoly[BigInt] =
         f.mapCoeff((c) => c % m + (if (c < 0) m else 0))
 
-    def henselLifting2(
+    def henselLifting2[M <: PrimeFieldModular](
         l: Int,
         f: Unipoly[BigInt],
-        gg: Unipoly[PrimeField],
-        hh: Unipoly[PrimeField]
+        gg: Unipoly[PrimeField[M]],
+        hh: Unipoly[PrimeField[M]]
     )(
-        implicit ff: PrimeFieldTrait,
-        edu: EuclideanDomainTrait[Unipoly[PrimeField]]
+        implicit pf: PrimeFieldTrait[M],
+        edu: EuclideanDomainTrait[Unipoly[PrimeField[M]]]
     ): (Unipoly[BigInt], Unipoly[BigInt]) = {
         val (u, ss, tt) = edu.exgcd(gg, hh)
         def tailRec(
@@ -42,7 +42,7 @@ class Hensel(rnd: Int => Int)(
         }
         tailRec(
             1,
-            ff.characteristic(gg.leadingCoefficient),
+            pf.characteristic(gg.leadingCoefficient),
             gg.mapCoeff(_.toBigInt),
             hh.mapCoeff(_.toBigInt),
             ss.divide(u).mapCoeff(_.toBigInt),
@@ -50,17 +50,17 @@ class Hensel(rnd: Int => Int)(
         )
     }
 
-    def henselLifting(
+    def henselLifting[M <: PrimeFieldModular](
         l: Int,
         f: Unipoly[BigInt],
-        gs: Vector[Unipoly[PrimeField]]
+        gs: Vector[Unipoly[PrimeField[M]]]
     )(
-        implicit ff: PrimeFieldTrait,
-        edu: EuclideanDomainTrait[Unipoly[PrimeField]]
+        implicit pf: PrimeFieldTrait[M],
+        edu: EuclideanDomainTrait[Unipoly[PrimeField[M]]]
     ): Iterator[Unipoly[BigInt]] = gs match {
         case Vector() => Iterator.empty
         case Vector(g) => {
-            val p = ff.characteristic(g.leadingCoefficient)
+            val p = pf.characteristic(g.leadingCoefficient)
             val m = p.pow(l)
             val invLcF = edi.inverseMod(f.leadingCoefficient, m)
             Iterator.single(
@@ -69,7 +69,7 @@ class Hensel(rnd: Int => Int)(
         }
         case _ => {
             val (gs1, gs2) = gs.splitAt(gs.length / 2)
-            val g = Unipoly.product(gs1).scale(ff.create(f.leadingCoefficient))
+            val g = Unipoly.product(gs1).scale(pf.create(f.leadingCoefficient))
             val h = Unipoly.product(gs2)
             val (f1, f2) = henselLifting2(l, f, g, h)
             henselLifting(l, f1, gs1) ++ henselLifting(l, f2, gs2)
@@ -85,17 +85,17 @@ class Hensel(rnd: Int => Int)(
         }).filter(_._2 > b).buffered.head
     }
 
-    def factorWithPrime(
+    def factorWithPrime[M <: PrimeFieldModular](
         p: Int,
         bound: BigInt,
         f: Unipoly[BigInt]
     ): Iterator[Unipoly[BigInt]] = {
-        implicit val ff = PrimeField.makePrimeField(p)
-        implicit val edu = Unipoly.makeUnipoly[PrimeField]
+        val pfImplicits = PrimeField.makeImplicits(p)
+        import pfImplicits._
 
-        val cz = new CantorZassenhaus(() => ff.create(rnd(p)))
+        val cz = new CantorZassenhaus(() => pf.create(rnd(p)))
 
-        val fP = f.mapCoeff(ff.create).toMonic()
+        val fP = f.mapCoeff(pf.create).toMonic()
         val factorsP = cz.factor(fP).toVector
         val (l, m) = findL(p, bound)
         val factors = henselLifting(l, f, factorsP)
