@@ -1,23 +1,31 @@
 package amo.AlgReal.factors
 
-import amo.AlgReal.{ Closure, RingTrait, Unipoly }
+import amo.AlgReal.implicits._
+import amo.AlgReal.{ BigInteger, Closure, RingTrait, Unipoly }
 import amo.AlgReal.Field.{ PrimeFieldModular, PrimeFieldTrait }
 
 object BigPrime {
+    def oneNorm[T](f: Unipoly[T])(
+        implicit ring: RingTrait[T], ordering: Ordering[T]
+    ): T = {
+        f.cs.foldLeft(ring.zero) { (acc, c) => ring.add(acc, ring.abs(c)) }
+    }
+
+    def maxNorm[T](f: Unipoly[T])(
+        implicit ring: RingTrait[T], ordering: Ordering[T]
+    ): T = f.cs.map(ring.abs).max
+
+    def factorCoefficientBound(f: Unipoly[BigInt]): BigInt = {
+        val n = f.degreeInt
+        (BigInteger.squareRoot(n + 2) + 1) * BigInt(2).pow(n) * maxNorm(f)
+    }
+
     def partitions[T](nn: Int, xxs: Vector[T]): Iterator[(Vector[T], Vector[T])] = (nn, xxs) match {
         case (0, xs) => Iterator((Vector.empty, xs))
         case (_, Vector()) => Iterator()
         case (n, x +: xs) =>
             partitions(n - 1, xs).map({ case (s, rest) => (x +: s, rest) }) ++
             partitions(n, xs).map({ case (s, rest) => (s, x +: rest) })
-    }
-
-    def oneNorm[T](f: Unipoly[T])(
-        implicit ring: RingTrait[T], ordering: Ordering[T]
-    ): T = {
-        f.cs.foldLeft(ring.zero) { (acc, c) =>
-            if (ordering.lt(c, ring.zero)) ring.sub(acc, c) else ring.add(acc, c)
-        }
     }
 
     def coprimeModP[M <: PrimeFieldModular](f: Unipoly[BigInt], g: Unipoly[BigInt])(

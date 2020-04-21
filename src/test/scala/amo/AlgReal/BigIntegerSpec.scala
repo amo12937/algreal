@@ -6,6 +6,27 @@ import org.scalatest.wordspec.AnyWordSpec
 import amo.AlgReal.implicits._
 
 class BigIntegerSpec extends AnyWordSpec with Matchers {
+    "squareRoot" should {
+        "return floor aquare root" in {
+            BigInteger.squareRoot(0) should be(0)
+            BigInteger.squareRoot(1) should be(1)
+            BigInteger.squareRoot(99) should be(9)
+            BigInteger.squareRoot(100) should be(10)
+            BigInteger.squareRoot(101) should be(10)
+            val x = BigInt(Int.MaxValue)
+            val n = x.pow(10)
+            val expected = x.pow(5)
+            val actual = BigInteger.squareRoot(n)
+            actual should be(expected)
+        }
+
+        "throw error if negative number supplied" in {
+            assertThrows[ArithmeticException] {
+                BigInteger.squareRoot(-1)
+            }
+        }
+    }
+
     "bigInt.compare" should {
         "return -1 if x < y" in {
             bigInt.compare(1, 10) should be(-1)

@@ -1,10 +1,35 @@
 package amo.AlgReal
 
+import scala.annotation.tailrec
 import scala.math.Ordering
 
 import amo.AlgReal.Field.QuotientField
 
 object BigInteger {
+    def squareRoot(n: BigInt): BigInt =
+        if (n < 0) throw new ArithmeticException("sauare root of negative number")
+        else if (n <= 1) n
+        else {
+            @tailrec
+            def tailRec(a: BigInt, b: BigInt): BigInt = {
+                val mid = (a + b) >> 1
+                mid.pow(2).compare(n) match {
+                    case 0 => mid
+                    case -1 => {
+                        val nextA = mid + 1
+                        if (nextA >= b) mid
+                        else tailRec(nextA, b)
+                    }
+                    case 1 => {
+                        val nextB = mid - 1
+                        if (a >= nextB) nextB
+                        else tailRec(a, nextB)
+                    }
+                }
+            }
+            tailRec(1, (n >> 5) + 8)
+        }
+
     trait implicits {
         implicit val bigInt =
             new EuclideanDomainTrait[BigInt]

@@ -11,4 +11,7 @@ trait RingTrait[T] extends EqTrait[T] {
     def pow(a: T, n: Int): T
 
     def fromInt(n: Int): T = timesN(one, n)
+
+    def abs(a: T)(implicit ordering: Ordering[T]): T =
+        if (ordering.lt(a, zero)) negate(a) else a
 }
