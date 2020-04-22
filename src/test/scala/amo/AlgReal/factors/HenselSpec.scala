@@ -5,15 +5,16 @@ import org.scalatest.wordspec.AnyWordSpec
 
 import scala.util.Random
 
-import amo.AlgReal.implicits._
+import amo.implicits._
 import amo.AlgReal.Field.PrimeField
-import amo.AlgReal.Unipoly
+import amo.AlgReal.{ Prime, Unipoly }
 
 class HenselSpec extends AnyWordSpec with Matchers {
     val r = new Random
     "henselLifting2" should {
         "lift 5 -> 25" in {
-            val F5Implicits = PrimeField.makeImplicits(5)
+            val p5 = Prime(5).get
+            val F5Implicits = PrimeField.makeImplicits(p5)
             import F5Implicits.{ pf => F5, _}
 
             val x = Unipoly.ind[BigInt]
@@ -23,7 +24,7 @@ class HenselSpec extends AnyWordSpec with Matchers {
             val h = y + 2
             f.mapCoeff(F5.create) should be(g * h)
 
-            val hensel = new Hensel(r.nextInt _)
+            val hensel = new Hensel(r.nextBigInt)
 
             val (g2, h2) = hensel.henselLifting2(2, f, g, h)
             g2 should be(3 * (x^2) + x + 9)

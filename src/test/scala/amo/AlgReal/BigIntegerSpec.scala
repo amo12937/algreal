@@ -3,7 +3,7 @@ package amo.AlgReal
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import amo.AlgReal.implicits._
+import amo.implicits._
 
 class BigIntegerSpec extends AnyWordSpec with Matchers {
     "squareRoot" should {

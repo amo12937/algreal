@@ -3,8 +3,8 @@ package amo.AlgReal.factors
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import amo.AlgReal.implicits._
-import amo.AlgReal.Unipoly
+import amo.implicits._
+import amo.AlgReal.{ Prime, Unipoly }
 import amo.AlgReal.Field.PrimeField
 
 class BigPrimeSpec extends AnyWordSpec with Matchers {
@@ -60,7 +60,8 @@ class BigPrimeSpec extends AnyWordSpec with Matchers {
 
     "coprimeModP" should {
         "return true if it is disjoint on mod p" in {
-            val F5Implicits = PrimeField.makeImplicits(5)
+            val p5 = Prime(5).get
+            val F5Implicits = PrimeField.makeImplicits(p5)
             import F5Implicits._
             val x = Unipoly.ind[BigInt]
             val f = (x^4) + 1
@@ -68,7 +69,8 @@ class BigPrimeSpec extends AnyWordSpec with Matchers {
         }
 
         "return false if it is not disjoint on mod p" in {
-            val F5Implicits = PrimeField.makeImplicits(5)
+            val p5 = Prime(5).get
+            val F5Implicits = PrimeField.makeImplicits(p5)
             import F5Implicits._
             val x = Unipoly.ind[BigInt]
             val f = (x^5) + 1

@@ -4,13 +4,14 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import scala.util.Random
 
-import amo.AlgReal.implicits._
+import amo.implicits._
 import amo.AlgReal.Field.PrimeField
-import amo.AlgReal.Unipoly
+import amo.AlgReal.{ Prime, Unipoly }
 
 class BigIntegerSpec extends AnyWordSpec with Matchers {
     val r = new Random
-    val F37Implicits = PrimeField.makeImplicits(37)
+    val p37 = Prime(37).get
+    val F37Implicits = PrimeField.makeImplicits(p37)
     import F37Implicits.{ pf => F37, _}
 
     def rnd(): PrimeField[M] = F37.create(r.nextInt(37))

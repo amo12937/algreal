@@ -1,6 +1,6 @@
 package amo.AlgReal.factors
 
-import amo.AlgReal.implicits._
+import amo.implicits._
 import amo.AlgReal.{ BigInteger, Closure, RingTrait, Unipoly }
 import amo.AlgReal.Field.{ PrimeFieldModular, PrimeFieldTrait }
 

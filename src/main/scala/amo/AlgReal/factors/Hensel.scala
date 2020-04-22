@@ -2,10 +2,11 @@ package amo.AlgReal.factors
 
 import scala.math
 
+import amo.AlgReal.{ EuclideanDomainTrait, Prime, Unipoly }
 import amo.AlgReal.Field.{ PrimeField, PrimeFieldModular, PrimeFieldTrait }
-import amo.AlgReal.{ EuclideanDomainTrait, Unipoly }
+import amo.util.Random._
 
-class Hensel(rnd: Int => Int)(
+class Hensel(rnd: BigInt => BigInt)(
     implicit edi: EuclideanDomainTrait[BigInt]
 ) {
     def mod(m: BigInt, f: Unipoly[BigInt]): Unipoly[BigInt] =
@@ -86,18 +87,18 @@ class Hensel(rnd: Int => Int)(
     }
 
     def factorWithPrime[M <: PrimeFieldModular](
-        p: Int,
+        p: Prime,
         bound: BigInt,
         f: Unipoly[BigInt]
     ): Iterator[Unipoly[BigInt]] = {
         val pfImplicits = PrimeField.makeImplicits(p)
         import pfImplicits._
 
-        val cz = new CantorZassenhaus(() => pf.create(rnd(p)))
+        val cz = new CantorZassenhaus(() => pf.create(rnd(p.n)))
 
         val fP = f.mapCoeff(pf.create).toMonic()
         val factorsP = cz.factor(fP).toVector
-        val (l, m) = findL(p, bound)
+        val (l, m) = findL(p.n, bound)
         val factors = henselLifting(l, f, factorsP)
         Iterator.empty
     }
