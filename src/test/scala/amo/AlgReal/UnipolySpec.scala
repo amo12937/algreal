@@ -9,6 +9,27 @@ import amo.implicits._
 class UnipolySpec extends AnyWordSpec with Matchers {
     val x = Unipoly.ind[BigInt]
 
+    "toStringWithInd" should {
+        "return human readable string" in {
+            ((x^4) + 3 * (x^2) + 5)
+                .toStringWithInd("x") should be("x^4 + 3x^2 + 5")
+            Unipoly.zero[BigInt]
+                .toStringWithInd("x") should be("0")
+            Unipoly.one[BigInt]
+                .toStringWithInd("x") should be("1")
+            x.toStringWithInd("x") should be("x")
+            (2*x).toStringWithInd("x") should be("2x")
+            (x^2).toStringWithInd("x") should be("x^2")
+            (2 * (x^2)).toStringWithInd("x") should be("2x^2")
+            (-Unipoly.one[BigInt])
+                .toStringWithInd("x") should be("-1")
+            (-x).toStringWithInd("x") should be("-x")
+            (-2 * x).toStringWithInd("x") should be("-2x")
+            (-(x^2)).toStringWithInd("x") should be("-x^2")
+            ((x^2) - 2 * x).toStringWithInd("x") should be("x^2 - 2x")
+        }
+    }
+
     "+" should {
         "add to the other Unipoly" in {
             val l = Unipoly[BigInt](1, 2, 3)

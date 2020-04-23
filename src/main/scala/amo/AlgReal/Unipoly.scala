@@ -14,6 +14,38 @@ class Unipoly[T](val cs: Vector[T])(
         if (isZero) s"[${nToRingT(0).toString}]"
         else s"[${cs.mkString(", ")}]"
 
+    def toStringWithInd(s: String)(
+        implicit ordering: Ordering[T]
+    ): String = cs.zipWithIndex
+        .filterNot({ case (c, _) => gcdDomainT.equiv(c, gcdDomainT.zero) })
+        .reverse match {
+            case Vector() => s"${gcdDomainT.zero}"
+            case (cHead, idxHead) +: tail => (
+                (
+                    (if (ordering.lt(cHead, gcdDomainT.zero)) "-" else "") +
+                    absToString(s, cHead, idxHead)
+                ) +: tail.map({ case (c, idx) =>
+                    " " + signToString(c) + " " + absToString(s, c, idx)
+                })
+            ).mkString
+        }
+
+    def signToString(c: T)(implicit ordering: Ordering[T]) =
+        if (ordering.lt(c, gcdDomainT.zero)) "-"
+        else "+"
+
+    def absToString(s: String, c: T, idx: Int)(
+        implicit ordering: Ordering[T]
+    ): String =
+        if (ordering.lt(c, gcdDomainT.zero)) absToString(s, gcdDomainT.negate(c), idx)
+        else (c, idx) match {
+            case (c, 0) => s"${c}"
+            case (gcdDomainT.one, 1) => s"${s}"
+            case (c, 1) => s"${c}${s}"
+            case (gcdDomainT.one, idx) => s"${s}^${idx}"
+            case (c, idx) => s"${c}${s}^${idx}"
+        }
+
     lazy val degree: Closure[Int] =
         if (isZero) Closure.NegativeInfinity
         else Closure(degreeInt)
