@@ -148,9 +148,12 @@ class Unipoly[T](val cs: Vector[T])(
             if (rem.isZero) Iterator.empty
             else {
                 val c = f.leadingCoefficient
-                val psi2 = gcdDomainT.divide(
+                val psi2 = if (d > 0) gcdDomainT.divide(
                     gcdDomainT.pow(gcdDomainT.negate(c), d),
                     gcdDomainT.pow(psi, d - 1)
+                ) else gcdDomainT.divide(
+                    gcdDomainT.pow(psi, 1 - d),
+                    gcdDomainT.pow(gcdDomainT.negate(c), -d),
                 )
                 val d2 = f.degreeInt - g.degreeInt
                 val beta = gcdDomainT.times(
@@ -180,11 +183,12 @@ class Unipoly[T](val cs: Vector[T])(
             case Some((_, p)) => p
         }
 
-    def gcd(g: Unipoly[T]): Unipoly[T] = {
-        val (fc, fp) = contentAndPrimitivePart
-        val (gc, gp) = g.contentAndPrimitivePart
-        fp.gcdSubresultantPRS(gp).primitivePart.scale(gcdDomainT.gcd(fc, gc))
-    }
+    def gcd(g: Unipoly[T]): Unipoly[T] =
+        if (degreeInt < g.degreeInt) g.gcd(this) else {
+            val (fc, fp) = contentAndPrimitivePart
+            val (gc, gp) = g.contentAndPrimitivePart
+            fp.gcdSubresultantPRS(gp).primitivePart.scale(gcdDomainT.gcd(fc, gc))
+        }
 
     def divide(g: Unipoly[T]): Unipoly[T] = {
         if (g.isZero) throw new ArithmeticException("divide by zero")
@@ -274,9 +278,11 @@ object Unipoly {
 
         def divMod(a: Unipoly[T], b: Unipoly[T]) = {
             val lc = b.leadingCoefficient
-            val f = a.unscale(lc)
-            val g = b.unscale(lc)
-            f.monicDivMod(g)
+            val f = a.unscale(lc)         // a = lc * f
+            val g = b.unscale(lc)         // b = lc * g
+            val (q, r) = f.monicDivMod(g) // f = qg + r
+            (q, r.scale(lc))              // a = qb + lc*r
+            // TODO: test
         }
     }
 

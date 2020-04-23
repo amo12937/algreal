@@ -68,9 +68,10 @@ object PrimeField {
     def apply[M <: PrimeFieldModular](n: BigInt)(
         implicit modular: M,
         bigIntEuclideanDomain: EuclideanDomainTrait[BigInt]
-    ): PrimeField[M] =
-        if (n < 0) new PrimeField(modular.p.n + (n % modular.p.n))
-        else new PrimeField(n % modular.p.n)
+    ): PrimeField[M] = new PrimeField(n % modular.p.n match {
+        case k if (k < 0) => k + modular.p.n
+        case k => k
+    })
 
     def makePrimeField[M <: PrimeFieldModular](m: M)(
         implicit implicitlyBigIntEuclideanDomain: EuclideanDomainTrait[BigInt]

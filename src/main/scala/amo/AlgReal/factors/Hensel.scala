@@ -1,5 +1,6 @@
 package amo.AlgReal.factors
 
+import scala.annotation.tailrec
 import scala.math
 
 import amo.AlgReal.{ EuclideanDomainTrait, Prime, Unipoly }
@@ -10,7 +11,10 @@ class Hensel(rnd: BigInt => BigInt)(
     implicit edi: EuclideanDomainTrait[BigInt]
 ) {
     def mod(m: BigInt, f: Unipoly[BigInt]): Unipoly[BigInt] =
-        f.mapCoeff((c) => c % m + (if (c < 0) m else 0))
+        f.mapCoeff(_ % m match {
+            case k if (k < 0) => k + m
+            case k => k
+        })
 
     def henselLifting2[M <: PrimeFieldModular](
         l: Int,
@@ -29,7 +33,8 @@ class Hensel(rnd: BigInt => BigInt)(
             h: Unipoly[BigInt],
             s: Unipoly[BigInt],
             t: Unipoly[BigInt]
-        ): (Unipoly[BigInt], Unipoly[BigInt]) = if (i >= l) (g, h) else {
+        ): (Unipoly[BigInt], Unipoly[BigInt]) = {
+            if (i >= l) (g, h) else {
             val m2 = m.pow(2)
             val e = mod(m2, (f - g * h))
             val (q, r) = (s * e).monicDivMod(h)
@@ -40,7 +45,7 @@ class Hensel(rnd: BigInt => BigInt)(
             val s2 = mod(m2, s - d)
             val t2 = mod(m2, t - t * b - c * g2)
             tailRec(i * 2, m2, g2, h2, s2, t2)
-        }
+        }}
         tailRec(
             1,
             pf.characteristic(gg.leadingCoefficient),
@@ -77,6 +82,10 @@ class Hensel(rnd: BigInt => BigInt)(
         }
     }
 
+    /*
+     * return (l, m)
+     *   where m = p^l, m > 2 * bound + 1
+     */
     def findL(p: BigInt, bound: BigInt): (Int, BigInt) = {
         val b = 2 * bound + 1
         val l = math.ceil(math.log(b.doubleValue) / math.log(p.doubleValue)).toInt
@@ -87,22 +96,69 @@ class Hensel(rnd: BigInt => BigInt)(
     }
 
     def factorWithPrime[M <: PrimeFieldModular](
-        p: Prime,
         bound: BigInt,
         f: Unipoly[BigInt]
+    )(
+        implicit pf: PrimeFieldTrait[M],
+        pfUnipoly: EuclideanDomainTrait[Unipoly[PrimeField[M]]]
     ): Iterator[Unipoly[BigInt]] = {
-        val pfImplicits = PrimeField.makeImplicits(p)
-        import pfImplicits._
-
+        val p = pf.modular.p
         val cz = new CantorZassenhaus(() => pf.create(rnd(p.n)))
 
         val fP = f.mapCoeff(pf.create).toMonic()
         val factorsP = cz.factor(fP).toVector
         val (l, m) = findL(p.n, bound)
-        val factors = henselLifting(l, f, factorsP)
-        Iterator.empty
+        val factors = henselLifting(l, f, factorsP).toVector
+        factorCombinationsModulo(m, bound, 1, f, factors)
     }
 
-    //def factorCombinationsModulo(m, bound, k, f, factors)
+    def factorCombinationsModulo(
+        m: BigInt,
+        bound: BigInt,
+        k: Int,
+        f: Unipoly[BigInt],
+        factors: Vector[Unipoly[BigInt]]
+    ): Iterator[Unipoly[BigInt]] = {
+        def toIntegerM(n: BigInt): BigInt = {
+            val k = n % m
+            if (2 * k > m) k - m else k
+        }
 
+        def loop(
+            kk: Int, ff: Unipoly[BigInt], fs: Vector[Unipoly[BigInt]]
+        ): Iterator[Unipoly[BigInt]] = fs match {
+            case Vector() => Iterator.empty
+            case _ if (2 * kk > fs.length) => Iterator(ff)
+            case _ => BigPrime.partitions(kk, fs).map({ case (s, rest) =>
+                val lcF = ff.leadingCoefficient
+                val g = Unipoly.product(s).scale(lcF).mapCoeff(toIntegerM)
+                val h = Unipoly.product(rest).scale(lcF).mapCoeff(toIntegerM)
+                (g, h, rest)
+            }).find({ case (g, h, rest) =>
+                BigPrime.oneNorm(g) * BigPrime.oneNorm(h) <= bound
+            }) match {
+                case None => loop(kk + 1, ff, fs)
+                case Some((g, h, rest)) =>
+                    Iterator(g.primitivePart) ++
+                    loop(kk, h.primitivePart, rest)
+            }
+        }
+
+        loop(k, f, factors)
+    }
+
+    def factor(f: Unipoly[BigInt]): Iterator[Unipoly[BigInt]] = {
+        val lcF = f.leadingCoefficient
+        val bound = BigPrime.factorCoefficientBound(f.scale(lcF))
+        Prime.primes.filter(p => {
+            lcF % p.n != 0
+        }).map(PrimeField.makeImplicits(_))
+        .find(pfImplicits => BigPrime.coprimeModP(f, f.diff)(pfImplicits.pf)) match {
+            case None => Iterator.empty
+            case Some(pfImplicits) => {
+                import pfImplicits._
+                factorWithPrime(bound, f)
+            }
+        }
+    }
 }

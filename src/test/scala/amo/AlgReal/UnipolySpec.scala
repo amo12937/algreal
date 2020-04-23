@@ -7,6 +7,8 @@ import amo.AlgReal.Field.QuotientField
 import amo.implicits._
 
 class UnipolySpec extends AnyWordSpec with Matchers {
+    val x = Unipoly.ind[BigInt]
+
     "+" should {
         "add to the other Unipoly" in {
             val l = Unipoly[BigInt](1, 2, 3)
@@ -50,6 +52,21 @@ class UnipolySpec extends AnyWordSpec with Matchers {
             val g = Unipoly[BigInt](1, 1)  // x + 1
             f.composition(g) should be(Unipoly[BigInt](6, 8, 3))  // f(g(x))
             g.composition(f) should be(Unipoly[BigInt](2, 2, 3))  // g(f(x))
+        }
+    }
+
+    "subresultantPRS" should {
+        "work well" in {
+            val f = (x^4) + (x^3) + (x^2) + x + 1
+            val g = (x^4) + x
+            val actual = f.subresultantPRS(g).toVector
+            val expected = Vector(
+                (-1, -(x^3) - (x^2) - 1),
+                (1, (x^2) + 1),
+                (1, x),
+                (1, Unipoly.one[BigInt])
+            )
+            actual should be(expected)
         }
     }
 
