@@ -5,7 +5,7 @@ import java.lang.ArithmeticException
 import amo.AlgReal.Field.QuotientField
 
 class Unipoly[T](val cs: Vector[T])(
-    implicit gcdDomainT: GcdDomainTrait[T]
+    implicit val gcdDomainT: GcdDomainTrait[T]
 ) extends Equals {
     implicit val nToRingT = gcdDomainT.fromInt _
     def isZero: Boolean = cs.length <= 0
@@ -101,8 +101,14 @@ class Unipoly[T](val cs: Vector[T])(
 
     def valueAt(q: QuotientField[T])(
         implicit tToF: T => QuotientField[T],
-        gcdDomainF: GcdDomainTrait[QuotientField[T]],
+        gcdDomainF: GcdDomainTrait[QuotientField[T]]
     ): QuotientField[T] = mapCoeff(tToF).valueAt(q)
+
+    def signAt(q: QuotientField[T])(
+        implicit tToF: T => QuotientField[T],
+        gcdDomainF: GcdDomainTrait[QuotientField[T]],
+        orderingF: Ordering[QuotientField[T]]
+    ): Int = gcdDomainF.signum(valueAt(q))
 
     def composition(g: Unipoly[T]): Unipoly[T] =
         if (g.isZero) Unipoly()
@@ -258,47 +264,6 @@ class Unipoly[T](val cs: Vector[T])(
                 case (l, r) => gcdDomainT.equiv(l, r)
             }
         case _ => false
-    }
-
-    def intervalsWithSign(
-        s: Int,
-        interval: Interval[QuotientField[T]]
-    )(
-        implicit tToF: T => QuotientField[T],
-        gcdDomainF: GcdDomainTrait[QuotientField[T]],
-        ordering: Ordering[QuotientField[T]]
-    ): Iterator[Interval[QuotientField[T]]] =
-        Iterator.iterate((interval, false))({ case (iv, isRat) =>
-            if (isRat) (iv, isRat)
-            else {
-                val middle = iv.middle
-                val v = gcdDomainF.timesN(valueAt(middle), s)
-                ordering.compare(v, gcdDomainF.zero) match {
-                    case 0 => (Interval(middle, middle), true)
-                    case -1 => (Interval(middle, iv.right), false)
-                    case _ => (Interval(iv.left, middle), false)
-                }
-            }
-        }).map(_._1)
-
-    def negativePRS(rhs: Unipoly[T])(
-        implicit orderingT: Ordering[T],
-        tToF: T => QuotientField[T],
-        gcdDomainF: GcdDomainTrait[QuotientField[T]],
-        orderingF: Ordering[QuotientField[T]]
-    ): Iterator[Unipoly[T]] = {
-        Iterator(this) ++ subresultantPRS(rhs).scanLeft((this, rhs, 1, 1))({case ((f, g, s, t), (b, x)) =>
-            val lsign = gcdDomainT.signum(g.leadingCoefficient)
-            val lsignpow =
-                if (lsign >= 0) lsign
-                else 1 - 2 * ((f.degreeInt - g.degreeInt + 1) % 2)
-            val a = gcdDomainT.signum(gcdDomainT.timesN(b, lsignpow * s))
-            (g, x, t, -a)
-        }).map({case (_, g, _, t) => g.scale(t)}).takeWhile(f => !f.isZero)
-    }
-
-    def countRealRootsBetween(left: QuotientField[T], right: QuotientField[T]): Int = {
-        0
     }
 }
 

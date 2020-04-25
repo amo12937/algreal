@@ -118,36 +118,4 @@ class UnipolySpec extends AnyWordSpec with Matchers {
             f + t should be(Unipoly[BigInt](1, 1))
         }
     }
-
-    "intervalsWithSign" should {
-        "return the same value after the value of function is 0" in {
-            val f = 4 * x - 5
-
-            val actual = f.intervalsWithSign(1, Interval(1, 2)).take(5).toVector
-
-            val expected = Vector[Interval[QuotientField[BigInt]]](
-                Interval(1, 2),
-                Interval(1, rational.create(3, 2)),
-                Interval(rational.create(5, 4), rational.create(5, 4)),
-                Interval(rational.create(5, 4), rational.create(5, 4)),
-                Interval(rational.create(5, 4), rational.create(5, 4)),
-            )
-            actual should be(expected)
-        }
-
-        "return list of aproximate values" in {
-            val f = (x^2) - 2
-
-            val actual = f.intervalsWithSign(1, Interval(1, 2)).take(5).toVector
-
-            val expected = Vector[Interval[QuotientField[BigInt]]](
-                Interval(1, 2),
-                Interval(1, rational.create(3, 2)),
-                Interval(rational.create(5, 4), rational.create(3, 2)),
-                Interval(rational.create(11, 8), rational.create(3, 2)),
-                Interval(rational.create(11, 8), rational.create(23, 16)),
-            )
-            actual should be(expected)
-        }
-    }
 }
