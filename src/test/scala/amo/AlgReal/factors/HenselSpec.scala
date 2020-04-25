@@ -67,5 +67,14 @@ class HenselSpec extends AnyWordSpec with Matchers {
                 ((x^4) - (x^3) + (x^2) - x + 1)
             ))
         }
+
+        "work weil with x^3 - x^2 - 2x + 2" in {
+            val actual = hensel.factor(-(x^3) + (x^2) + 2 * x - 2)
+            actual.toSet should be(Set(
+                -Unipoly.one[BigInt],
+                x - 1,
+                (x^2) - 2
+            ))
+        }
     }
 }

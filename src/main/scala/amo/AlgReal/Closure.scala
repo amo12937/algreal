@@ -1,9 +1,6 @@
 package amo.AlgReal
 
-sealed abstract class Closure[+T] {
-    def <[S >: T] (rhs: Closure[S])(implicit ordering: Ordering[Closure[S]]): Boolean =
-        ordering.lt(this, rhs)
-}
+sealed abstract class Closure[+T]
 
 object Closure {
     final case class ClosureValue[+T](t: T) extends Closure[T]
@@ -13,6 +10,8 @@ object Closure {
     def apply[T](t: T): Closure[T] = ClosureValue(t)
 
     trait implicits {
+        import scala.language.implicitConversions
+
         def closureOrdering[T](implicit ordering: Ordering[T]) = new Ordering[Closure[T]] {
             def compare(x: Closure[T], y: Closure[T]): Int = (x, y) match {
                 case (NegativeInfinity, NegativeInfinity) => 0
@@ -26,6 +25,16 @@ object Closure {
         }
 
         implicit val closureIntOrdering = closureOrdering[Int]
+
+        implicit def tToClosure[T](t: T): Closure[T] = ClosureValue(t)
+        implicit def closureValueToT[T](c: ClosureValue[T]): T = c.t
+
+        implicit class ClosureOrderingExtension[T](c: Closure[T])(
+            implicit orderingT: Ordering[T]
+        ) extends Ordered[Closure[T]] {
+            val orderingC = closureOrdering[T]
+            def compare(rhs: Closure[T]): Int = orderingC.compare(c, rhs)
+        }
     }
 
     object implicits extends implicits

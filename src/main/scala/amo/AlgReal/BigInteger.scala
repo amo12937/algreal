@@ -31,6 +31,8 @@ object BigInteger {
         }
 
     trait implicits {
+        this: Closure.implicits =>
+
         implicit val bigInt =
             new EuclideanDomainTrait[BigInt]
             with Ordering[BigInt] {
@@ -49,16 +51,18 @@ object BigInteger {
                 def pow(a: BigInt, n: Int) = a pow n
 
                 def divide(a: BigInt, b: BigInt) = a / b
-                def unit(a: BigInt) = if (a == 0) 1 else  a.signum
+                def unit(a: BigInt) = if (a == 0) 1 else a.signum
 
                 def gcd(a: BigInt, b: BigInt) = a gcd b
 
                 def divMod(a: BigInt, b: BigInt) = a /% b
                 override def mod(a: BigInt, b: BigInt) = a % b
             }
+        implicit val closureBigIntOrdering = closureOrdering[BigInt]
 
         implicit val rational = QuotientField.makeComparableQuotientField[BigInt]
         implicit val nToRationalFieldBigInt = rational.fromInt _
+        implicit val closureRationalOrdering = closureOrdering[QuotientField[BigInt]]
 
         implicit val iUnipoly = Unipoly.makeUnipoly[BigInt]
         implicit val nToUnipolyBigInt = iUnipoly.fromInt _

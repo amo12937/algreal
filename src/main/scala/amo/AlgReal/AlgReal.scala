@@ -1,7 +1,10 @@
 package amo.AlgReal
 
+import scala.util.Random
+
 import amo.implicits._
 import amo.AlgReal.Field.QuotientField
+import amo.AlgReal.factors.Hensel
 
 sealed trait AlgReal {
     def definingPolynomial: Unipoly[BigInt]
@@ -61,3 +64,71 @@ case class AlgRealPoly(
     }
 }
 
+object AlgReal {
+    val r = new Random
+    val hensel: Hensel = new Hensel(r.nextBigInt(_))
+
+    def mkAlgReal(
+        f: Unipoly[BigInt],
+        iv: Interval[QuotientField[BigInt]]
+    ): AlgReal = {
+        if (iv.left == iv.right && f.valueAt(iv.left) == 0) Rat(iv.left)
+        else if (iv.contains(0) && f.valueAt(0) == 0) Rat(0)
+        else if (f.degreeInt == 1) f.cs match {
+            case Vector(a, b) => Rat(rational.create(-a, b))
+        }
+        else {
+            val s = f.signAt(iv.right) match {
+                case 0 => f.diff.signAt(iv.right)
+                case k => k
+            }
+            f.intervalsWithSign(s, iv)
+                .find(iv2 => !iv2.contains(0))
+                .map(AlgRealPoly(f, s, _))
+                .getOrElse(Rat(0))
+        }
+    }
+
+    def bisect(
+        f: Unipoly[BigInt],
+        seq: Vector[Unipoly[BigInt]],
+        iv: Interval[QuotientField[BigInt]],
+        i: Int,
+        j: Int
+    ): Iterator[AlgReal] =
+        if (i <= j) Iterator.empty
+        else if (i == j + 1) Iterator(mkAlgReal(f, iv))
+        else {
+            val c = iv.middle
+            val k = StrumExtension.varianceAt(c, seq)
+            bisect(f, seq, Interval(iv.left, c), i, k) ++ bisect(f, seq, Interval(c, iv.right), k, j)
+        }
+
+    def realRootsBetween(
+        f: Unipoly[BigInt],
+        lb: Closure[QuotientField[BigInt]],
+        ub: Closure[QuotientField[BigInt]]
+    ): Iterator[AlgReal] = if (f.degreeInt <= 0) Iterator.empty else {
+        val f2 = f.squareFree
+        val seq = f2.negativePRS(f2.diff).toVector
+        val b = f2.rootBound
+        val boundIv = Interval(-b, b).intersect(Interval(lb, ub))
+
+        bisect(
+            f, seq, boundIv,
+            StrumExtension.varianceAt(boundIv.left, seq),
+            StrumExtension.varianceAt(boundIv.right, seq)
+        )
+    }
+
+    def realRoots(
+        f: Unipoly[BigInt]
+    ): Iterator[AlgReal] =
+        if (f.degreeInt <= 0) Iterator.empty else for {
+            f2 <- Iterator(f.squareFree)
+            g <- hensel.factor(f2)
+            x <- realRootsBetween(
+                g, Closure.NegativeInfinity, Closure.PositiveInfinity
+            )
+        } yield x
+}

@@ -61,4 +61,25 @@ class UnipolyStrumExtensionSpec extends AnyWordSpec with Matchers {
             actual should be(expected)
         }
     }
+
+    "rootBound" should {
+        "return 0 for Unipoly.zero" in {
+            val actual = Unipoly.zero[BigInt].rootBound
+            val expected = rational.zero
+            actual should be(expected)
+        }
+
+        "return 1 for constant Unipoly" in {
+            val actual = Unipoly.one[BigInt].rootBound
+            val expected = rational.one
+            actual should be(expected)
+        }
+
+        "return upper bound in which root exists" in {
+            val f = (x^2) - 2
+            val actual = f.rootBound
+            val expected = rational.create(3)
+            actual should be(expected)
+        }
+    }
 }

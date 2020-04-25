@@ -49,6 +49,18 @@ class Interval[T](val left: T, val right: T)(implicit ordering: Ordering[T]) ext
     }
 
     override def toString: String = s"[$left, $right]"
+
+    def clamp(x: Closure[T]): T = x match {
+        case Closure.NegativeInfinity => left
+        case Closure.PositiveInfinity => right
+        case Closure.ClosureValue(t) => ordering.min(ordering.max(t, left), right)
+    }
+
+    def intersect(rhs: Interval[Closure[T]]): Interval[T] =
+        Interval(clamp(rhs.left), clamp(rhs.right))
+
+    def contains(t: T): Boolean =
+        ordering.lteq(left, t) && ordering.lteq(t, right)
 }
 
 object Interval {

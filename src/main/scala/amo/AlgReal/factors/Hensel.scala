@@ -2,7 +2,9 @@ package amo.AlgReal.factors
 
 import scala.annotation.tailrec
 import scala.math
+import scala.util.Random
 
+import amo.implicits._
 import amo.AlgReal.{ EuclideanDomainTrait, Prime, Unipoly }
 import amo.AlgReal.Field.{ PrimeField, PrimeFieldModular, PrimeFieldTrait }
 import amo.util.Random._
@@ -147,10 +149,13 @@ class Hensel(rnd: BigInt => BigInt)(
         loop(k, f, factors)
     }
 
-    def factor(f: Unipoly[BigInt]): Iterator[Unipoly[BigInt]] = {
+    def factor(ff: Unipoly[BigInt]): Iterator[Unipoly[BigInt]] = {
+        val (c, f) = ff.contentAndPrimitivePart match {
+            case (c2, f2) => (c2 * f2.leadingCoefficient.signum, f2.scale(f2.leadingCoefficient.signum))
+        }
         val lcF = f.leadingCoefficient
         val bound = BigPrime.factorCoefficientBound(f.scale(lcF))
-        Prime.primes.filter(p => {
+        Iterator(c).filter(_ != 1).map(Unipoly(_)) ++ (Prime.primes.filter(p => {
             lcF % p.n != 0
         }).map(PrimeField.makeImplicits(_))
         .find(pfImplicits => BigPrime.coprimeModP(f, f.diff)(pfImplicits.pf)) match {
@@ -159,6 +164,17 @@ class Hensel(rnd: BigInt => BigInt)(
                 import pfImplicits._
                 factorWithPrime(bound, f)
             }
-        }
+        })
+    }
+}
+
+object Hensel {
+    trait implicits {
+        val r: Random
+        implicit val hensel = new Hensel(r.nextBigInt(_))
+    }
+
+    object implicits extends implicits {
+        val r = new Random
     }
 }

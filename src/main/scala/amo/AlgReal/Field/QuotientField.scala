@@ -82,7 +82,7 @@ trait QuotientFieldOrdering[T] extends Ordering[QuotientField[T]] {
 trait QuotientFieldCreatorTrait[T] {
     implicit val gcdDomainT: GcdDomainTrait[T]
     implicit val nToRingT: Int => T
-    def create(num: T, denom: T): QuotientField[T] = QuotientField(num, denom)
+    def create(num: T, denom: T = gcdDomainT.one): QuotientField[T] = QuotientField(num, denom)
 }
 
 object QuotientField {
