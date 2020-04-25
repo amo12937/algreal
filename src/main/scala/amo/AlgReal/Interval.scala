@@ -1,6 +1,6 @@
 package amo.AlgReal
 
-class Interval[T](val left: T, val right: T)(implicit ordering: Ordering[T], eqOp: EqTrait[T]) extends Equals {
+class Interval[T](val left: T, val right: T)(implicit ordering: Ordering[T]) extends Equals {
     def + (rhs: Interval[T])(implicit ring: RingTrait[T]) = Interval(
         ring.add(left, rhs.left),
         ring.add(right, rhs.right)
@@ -33,12 +33,18 @@ class Interval[T](val left: T, val right: T)(implicit ordering: Ordering[T], eqO
             ordering.max(ring.negate(left), right)
         )
 
+    def middle(implicit integralDomain: IntegralDomainTrait[T]): T =
+        integralDomain.divide(
+            integralDomain.add(left, right),
+            integralDomain.timesN(integralDomain.one, 2)
+        )
+
     def canEqual(rhs: Any): Boolean = rhs.isInstanceOf[Interval[T]]
     override def equals(rhs: Any): Boolean = rhs match {
         case r: Interval[T] =>
             r.canEqual(this) &&
-            eqOp.equiv(left, r.left) &&
-            eqOp.equiv(right, r.right)
+            ordering.equiv(left, r.left) &&
+            ordering.equiv(right, r.right)
         case _ => false
     }
 
@@ -48,7 +54,6 @@ class Interval[T](val left: T, val right: T)(implicit ordering: Ordering[T], eqO
 object Interval {
     def apply[T](left: T, right: T)(
         implicit ordering: Ordering[T],
-        eqOp: EqTrait[T]
     ) =
         if (ordering.gt(left, right)) new Interval(right, left)
         else new Interval(left, right)

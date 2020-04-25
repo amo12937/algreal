@@ -14,4 +14,6 @@ trait RingTrait[T] extends EqTrait[T] {
 
     def abs(a: T)(implicit ordering: Ordering[T]): T =
         if (ordering.lt(a, zero)) negate(a) else a
+
+    def signum(a: T)(implicit ordering: Ordering[T]): Int = ordering.compare(a, zero)
 }
