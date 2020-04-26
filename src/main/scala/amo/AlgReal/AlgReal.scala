@@ -3,7 +3,7 @@ package amo.AlgReal
 import scala.util.Random
 
 import amo.implicits._
-import amo.AlgReal.Field.QuotientField
+import amo.AlgReal.Field.{ FieldTrait, QuotientField }
 import amo.AlgReal.factors.Hensel
 
 sealed trait AlgReal extends Equals {
@@ -27,6 +27,8 @@ sealed trait AlgReal extends Equals {
     def * (rhs: AlgReal): AlgReal
     def inverse: AlgReal
     def / (rhs: AlgReal): AlgReal = this * rhs.inverse
+
+    def pow(n: Int): AlgReal
 }
 
 object AlgReal {
@@ -69,6 +71,8 @@ object AlgReal {
         }
 
         def inverse = Rat(r.inverse)
+
+        def pow(n: Int) = Rat(r.pow(n))
     }
 
     case class AlgRealPoly(
@@ -139,6 +143,12 @@ object AlgReal {
         }
 
         def inverse = mkAlgReal(Unipoly(f.cs.reverse), i.inverse)
+
+        def pow(n: Int) = {
+            val g = Unipoly.ind[BigInt].pow(n)
+            val k = f.leadingCoefficient.pow(g.degreeInt - f.degreeInt + 1)
+            g.pseudoMod(f).mapCoeff[AlgReal](c => Rat(rational.create(c, k))).valueAt(this)
+        }
 
         override def toString =
             s"AlgRealPoly(${f.toStringWithInd("x")}, (${i.left}, ${i.right}))"
@@ -225,4 +235,24 @@ object AlgReal {
                 g, Closure.NegativeInfinity, Closure.PositiveInfinity
             )
         } yield x
+
+    trait implicits {
+        implicit val algReal =
+            new FieldTrait[AlgReal]
+            with Ordering[AlgReal] {
+                def compare(x: AlgReal, y: AlgReal) = x compare y
+
+                def zero = Rat(0)
+                def one = Rat(1)
+
+                def add(a: AlgReal, b: AlgReal) = a + b
+                def negate(a: AlgReal) = -a
+                def times(a: AlgReal, b: AlgReal) = a * b
+                def timesN(a: AlgReal, n: Int) = a * Rat(n)
+                def pow(a: AlgReal, n: Int) = a.pow(n)
+
+                def divide(a: AlgReal, b: AlgReal) = a / b
+            }
+    }
+    object implicits extends implicits
 }
