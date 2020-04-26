@@ -93,6 +93,26 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
         }
     }
 
+    "pow" should {
+        "return 16/81 when calculate (2/3)^4" in {
+            val twoThird = Rat(rational.create(2, 3))
+            val actual = twoThird pow 4
+
+            val expected = Rat(rational.create(16, 81))
+
+            actual should be(expected)
+        }
+
+        "return 3363 - 2378 sqrt(2) when calculate (sqrt(2) - 1)^2" in {
+            val a = mkAlgReal((x^2) + 2 * x - 1, Interval(0, 1))
+            val actual = a pow 10
+
+            val expected = mkAlgReal((x^2) - 6726 * x + 1, Interval(0, 1))
+
+            actual should be(expected)
+        }
+    }
+
     "realRoots" should {
         "return list of AlgReal value where f becomes zero" in {
             val f = (x^3) - (x^2) - 2 * x + 2

@@ -149,7 +149,7 @@ object AlgReal {
         def unary_- = AlgRealPoly(f.composition(Unipoly.ind), -s, -i)
 
         def * (rhs: AlgReal) = rhs match {
-            case Rat(r) => if (r == 0) Rat(r) else mkAlgReal(
+            case Rat(r) => if (rational.equiv(r, 0)) Rat(r) else mkAlgReal(
                 Unipoly(f.cs.toIterator
                     .zip(Iterator.iterate(r.num pow f.degreeInt)(_ / r.num * r.denom))
                     .map({case (c, n) => c * n})
