@@ -1,8 +1,8 @@
-package amo.AlgReal.factors
+package amo.algreal.factors
 
 import amo.implicits._
-import amo.AlgReal.{ BigInteger, Closure, RingTrait, Unipoly }
-import amo.AlgReal.Field.{ PrimeFieldModular, PrimeFieldTrait }
+import amo.algreal.{ BigInteger, Closure, RingTrait, Unipoly }
+import amo.algreal.Field.{ PrimeFieldModular, PrimeFieldTrait }
 
 object BigPrime {
     def oneNorm[T](f: Unipoly[T])(

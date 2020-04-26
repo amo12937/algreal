@@ -1,7 +1,7 @@
-package amo.AlgReal.factors
+package amo.algreal.factors
 
-import amo.AlgReal.Field.FiniteFieldTrait
-import amo.AlgReal.{ EuclideanDomainTrait, Unipoly }
+import amo.algreal.Field.FiniteFieldTrait
+import amo.algreal.{ EuclideanDomainTrait, Unipoly }
 
 class CantorZassenhaus[T](rnd: () => T)(
     implicit ff: FiniteFieldTrait[T],

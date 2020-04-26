@@ -1,4 +1,4 @@
-package amo.AlgReal
+package amo.algreal
 
 trait RingTrait[T] extends EqTrait[T] {
     val zero: T

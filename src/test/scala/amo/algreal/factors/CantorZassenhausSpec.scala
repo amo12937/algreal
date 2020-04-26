@@ -1,12 +1,12 @@
-package amo.AlgReal.factors
+package amo.algreal.factors
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import scala.util.Random
 
 import amo.implicits._
-import amo.AlgReal.Field.PrimeField
-import amo.AlgReal.{ Prime, Unipoly }
+import amo.algreal.Field.PrimeField
+import amo.algreal.{ Prime, Unipoly }
 
 class BigIntegerSpec extends AnyWordSpec with Matchers {
     val r = new Random

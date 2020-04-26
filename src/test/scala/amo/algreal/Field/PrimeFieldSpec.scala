@@ -1,9 +1,9 @@
-package amo.AlgReal.Field
+package amo.algreal.Field
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import amo.AlgReal.Prime
+import amo.algreal.Prime
 import amo.implicits._
 
 class PrimeFieldSpec extends AnyWordSpec with Matchers {

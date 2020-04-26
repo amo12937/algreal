@@ -1,9 +1,9 @@
-package amo.AlgReal
+package amo.algreal
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import amo.AlgReal.Field.QuotientField
+import amo.algreal.Field.QuotientField
 import amo.implicits._
 
 class UnipolySpec extends AnyWordSpec with Matchers {

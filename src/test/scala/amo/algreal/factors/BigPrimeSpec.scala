@@ -1,11 +1,11 @@
-package amo.AlgReal.factors
+package amo.algreal.factors
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 import amo.implicits._
-import amo.AlgReal.{ Prime, Unipoly }
-import amo.AlgReal.Field.PrimeField
+import amo.algreal.{ Prime, Unipoly }
+import amo.algreal.Field.PrimeField
 
 class BigPrimeSpec extends AnyWordSpec with Matchers {
     "oneNorm" should {

@@ -1,6 +1,6 @@
-package amo.AlgReal.Field
+package amo.algreal.Field
 
-import amo.AlgReal.{ EuclideanDomainTrait, Prime, Unipoly }
+import amo.algreal.{ EuclideanDomainTrait, Prime, Unipoly }
 
 trait PrimeFieldModular {
     val p: Prime

@@ -1,6 +1,6 @@
-package amo.AlgReal.Field
+package amo.algreal.Field
 
-import amo.AlgReal.EuclideanDomainTrait
+import amo.algreal.EuclideanDomainTrait
 
 trait FieldTrait[T] extends EuclideanDomainTrait[T] {
     def unit(a: T) = if (equiv(a, zero)) one else a

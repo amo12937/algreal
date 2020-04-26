@@ -1,4 +1,4 @@
-package amo.AlgReal
+package amo.algreal
 
 trait GcdDomainTrait[T] extends IntegralDomainTrait[T] {
     def gcd(a: T, b: T): T

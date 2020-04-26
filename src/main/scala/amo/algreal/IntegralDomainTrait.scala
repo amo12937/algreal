@@ -1,4 +1,4 @@
-package amo.AlgReal
+package amo.algreal
 
 trait IntegralDomainTrait[T] extends RingTrait[T] {
     def divide(a: T, b: T): T

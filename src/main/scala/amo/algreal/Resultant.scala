@@ -1,4 +1,4 @@
-package amo.AlgReal
+package amo.algreal
 
 class Resultant[T](implicit integralDomain: IntegralDomainTrait[T]) {
     def resultant(f: Unipoly[T], g: Unipoly[T]): T = {

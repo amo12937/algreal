@@ -1,10 +1,10 @@
-package amo.AlgReal
+package amo.algreal
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 import amo.implicits._
-import amo.AlgReal.Field.PrimeField
+import amo.algreal.Field.PrimeField
 
 class PrimeFieldEuclideanDomainSpec extends AnyWordSpec with Matchers {
     "exgcd" should {

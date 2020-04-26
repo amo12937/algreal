@@ -1,4 +1,4 @@
-package amo.AlgReal
+package amo.algreal
 
 sealed abstract class Closure[+T]
 

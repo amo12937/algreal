@@ -1,12 +1,12 @@
-package amo.AlgReal.factors
+package amo.algreal.factors
 
 import scala.annotation.tailrec
 import scala.math
 import scala.util.Random
 
 import amo.implicits._
-import amo.AlgReal.{ EuclideanDomainTrait, Prime, Unipoly }
-import amo.AlgReal.Field.{ PrimeField, PrimeFieldModular, PrimeFieldTrait }
+import amo.algreal.{ EuclideanDomainTrait, Prime, Unipoly }
+import amo.algreal.Field.{ PrimeField, PrimeFieldModular, PrimeFieldTrait }
 import amo.util.Random._
 
 class Hensel(rnd: BigInt => BigInt)(

@@ -1,6 +1,6 @@
-package amo.AlgReal
+package amo.algreal
 
-import amo.AlgReal.Field.QuotientField
+import amo.algreal.Field.QuotientField
 import amo.implicits._
 
 object StrumExtension {

@@ -1,4 +1,4 @@
-package amo.AlgReal
+package amo.algreal
 
 import scala.annotation.tailrec
 

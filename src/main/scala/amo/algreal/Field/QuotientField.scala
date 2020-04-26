@@ -1,8 +1,8 @@
-package amo.AlgReal.Field
+package amo.algreal.Field
 
 import java.lang.ArithmeticException
 
-import amo.AlgReal.{ EqTrait, GcdDomainTrait, RingTrait }
+import amo.algreal.{ EqTrait, GcdDomainTrait, RingTrait }
 
 class QuotientField[T](val num: T, val denom: T)(
     implicit gcdDomainT: GcdDomainTrait[T]

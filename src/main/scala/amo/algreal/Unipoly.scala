@@ -1,8 +1,8 @@
-package amo.AlgReal
+package amo.algreal
 
 import java.lang.ArithmeticException
 
-import amo.AlgReal.Field.QuotientField
+import amo.algreal.Field.QuotientField
 
 class Unipoly[T](val cs: Vector[T])(
     implicit val gcdDomainT: GcdDomainTrait[T]
@@ -128,7 +128,7 @@ class Unipoly[T](val cs: Vector[T])(
 
     def monicDivMod(g: Unipoly[T]): (Unipoly[T], Unipoly[T]) = g.degree match {
         case Closure.ClosureValue(d) if (g.isMonic) => {
-            import amo.AlgReal.Closure.implicits._
+            import amo.algreal.Closure.implicits._
             def tailRec(q: Unipoly[T], r: Unipoly[T]): (Unipoly[T], Unipoly[T]) = {
                 if (r.degree < g.degree) (q, r)
                 else {
@@ -143,7 +143,7 @@ class Unipoly[T](val cs: Vector[T])(
 
     def pseudoDivMod(g: Unipoly[T]): (Unipoly[T], Unipoly[T]) = g.degree match {
         case Closure.ClosureValue(gd) => {
-            import amo.AlgReal.Closure.implicits._
+            import amo.algreal.Closure.implicits._
             if (degree < g.degree) (Unipoly(), this)
             else {
                 val l = cs.length - gd

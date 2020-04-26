@@ -1,10 +1,10 @@
-package amo.AlgReal
+package amo.algreal
 
 import scala.util.Random
 
 import amo.implicits._
-import amo.AlgReal.Field.{ FieldTrait, QuotientField }
-import amo.AlgReal.factors.Hensel
+import amo.algreal.Field.{ FieldTrait, QuotientField }
+import amo.algreal.factors.Hensel
 
 sealed trait AlgReal extends Equals {
     def definingPolynomial: Unipoly[BigInt]
@@ -147,7 +147,7 @@ object AlgReal {
         def pow(n: Int) = {
             val g = Unipoly.ind[BigInt].pow(n)
             val k = f.leadingCoefficient.pow(g.degreeInt - f.degreeInt + 1)
-            g.pseudoMod(f).mapCoeff[AlgReal](c => Rat(rational.create(c, k))).valueAt(this)
+            g.pseudoMod(f).mapCoeff[AlgReal](c => Rat(rational.create(c, k)))(implicits.algReal).valueAt(this)
         }
 
         override def toString =
@@ -242,8 +242,8 @@ object AlgReal {
             with Ordering[AlgReal] {
                 def compare(x: AlgReal, y: AlgReal) = x compare y
 
-                def zero = Rat(0)
-                def one = Rat(1)
+                val zero = Rat(0)
+                val one = Rat(1)
 
                 def add(a: AlgReal, b: AlgReal) = a + b
                 def negate(a: AlgReal) = -a

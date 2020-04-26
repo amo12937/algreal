@@ -1,9 +1,9 @@
-package amo.AlgReal
+package amo.algreal
 
 import scala.annotation.tailrec
 import scala.math.Ordering
 
-import amo.AlgReal.Field.QuotientField
+import amo.algreal.Field.QuotientField
 
 object BigInteger {
     def squareRoot(n: BigInt): BigInt =
