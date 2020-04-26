@@ -4,8 +4,9 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 import amo.implicits._
-import amo.algreal.factors.Hensel.implicits._
 import amo.algreal.AlgReal.{ Rat, AlgRealPoly, mkAlgReal }
+import amo.algreal.factors.Hensel.implicits._
+import amo.algreal.polynomial.Unipoly
 
 class AlgRealSpec extends AnyWordSpec with Matchers {
     val x = Unipoly.ind[BigInt]

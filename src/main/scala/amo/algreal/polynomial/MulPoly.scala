@@ -1,4 +1,6 @@
-package amo.algreal
+package amo.algreal.polynomial
+
+import amo.algreal.{ GcdDomainTrait }
 
 sealed trait MulPoly[T] {
     def toUnipoly: Unipoly[MulPoly[T]]

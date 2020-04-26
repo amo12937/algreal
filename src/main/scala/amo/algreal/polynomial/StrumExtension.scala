@@ -1,5 +1,6 @@
-package amo.algreal
+package amo.algreal.polynomial
 
+import amo.algreal.{ GcdDomainTrait, Interval }
 import amo.algreal.Field.QuotientField
 import amo.implicits._
 

@@ -6,7 +6,8 @@ import scala.util.Random
 
 import amo.implicits._
 import amo.algreal.Field.PrimeField
-import amo.algreal.{ Prime, Unipoly }
+import amo.algreal.Prime
+import amo.algreal.polynomial.Unipoly
 
 class BigIntegerSpec extends AnyWordSpec with Matchers {
     val r = new Random

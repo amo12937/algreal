@@ -1,5 +1,7 @@
 package amo.algreal
 
+import amo.algreal.polynomial.Unipoly
+
 class Resultant[T](implicit integralDomain: IntegralDomainTrait[T]) {
     def resultant(f: Unipoly[T], g: Unipoly[T]): T = {
         lazy val r = f.pseudoMod(g)

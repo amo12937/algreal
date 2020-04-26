@@ -5,6 +5,7 @@ import org.scalatest.wordspec.AnyWordSpec
 
 import amo.implicits._
 import amo.algreal.Field.PrimeField
+import amo.algreal.polynomial.Unipoly
 
 class PrimeFieldEuclideanDomainSpec extends AnyWordSpec with Matchers {
     "exgcd" should {

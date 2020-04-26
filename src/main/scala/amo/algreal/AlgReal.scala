@@ -2,8 +2,9 @@ package amo.algreal
 
 import scala.util.{ Random => ScalaRandom }
 
-import amo.algreal.Field.{ FieldTrait, QuotientField }
 import amo.algreal.factors.Hensel
+import amo.algreal.Field.{ FieldTrait, QuotientField }
+import amo.algreal.polynomial.{ StrumExtension, Unipoly }
 import amo.util.Random
 
 sealed trait AlgReal extends Equals with Ordered[AlgReal] {

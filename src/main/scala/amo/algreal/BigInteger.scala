@@ -4,6 +4,7 @@ import scala.annotation.tailrec
 import scala.math.Ordering
 
 import amo.algreal.Field.QuotientField
+import amo.algreal.polynomial.Unipoly
 
 object BigInteger {
     def squareRoot(n: BigInt): BigInt =

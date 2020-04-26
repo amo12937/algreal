@@ -1,4 +1,4 @@
-package amo.algreal
+package amo.algreal.polynomial
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

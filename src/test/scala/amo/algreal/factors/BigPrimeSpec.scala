@@ -4,8 +4,9 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 import amo.implicits._
-import amo.algreal.{ Prime, Unipoly }
 import amo.algreal.Field.PrimeField
+import amo.algreal.Prime
+import amo.algreal.polynomial.Unipoly
 
 class BigPrimeSpec extends AnyWordSpec with Matchers {
     "oneNorm" should {

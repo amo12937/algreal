@@ -1,7 +1,8 @@
-package amo.algreal
+package amo.algreal.polynomial
 
 import java.lang.ArithmeticException
 
+import amo.algreal.{ Closure, EuclideanDomainTrait, GcdDomainTrait, RingTrait }
 import amo.algreal.Field.QuotientField
 
 class Unipoly[T](val cs: Vector[T])(
