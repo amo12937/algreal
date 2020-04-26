@@ -66,5 +66,8 @@ object BigInteger {
 
         implicit val iUnipoly = Unipoly.makeUnipoly[BigInt]
         implicit val nToUnipolyBigInt = iUnipoly.fromInt _
+
+        implicit val i2Unipoly = Unipoly.makeUnipoly[Unipoly[BigInt]]
+        implicit val nToUnipolyBigInt2 = i2Unipoly.fromInt _
     }
 }

@@ -6,67 +6,109 @@ import amo.implicits._
 import amo.AlgReal.Field.QuotientField
 import amo.AlgReal.factors.Hensel
 
-sealed trait AlgReal {
+sealed trait AlgReal extends Equals {
     def definingPolynomial: Unipoly[BigInt]
     def isolatingInterval: Interval[QuotientField[BigInt]]
 
     def intervals: Iterator[Interval[QuotientField[BigInt]]]
 
     def compare(rhs: AlgReal): Int
-}
 
-case class Rat(val r: QuotientField[BigInt]) extends AlgReal {
-    val f = Unipoly(-r.num, r.denom)
-    val i = Interval(r - 1, r + 1)
-
-    def definingPolynomial = f
-    def isolatingInterval = i
-    def intervals = {
-        val iv = Interval(r, r)
-        Iterator.continually(iv)
+    def canEqual(rhs: Any): Boolean = rhs.isInstanceOf[AlgReal]
+    override def equals(rhs: Any): Boolean = rhs match {
+        case r: AlgReal => r.canEqual(this) && compare(r) == 0
+        case _ => false
     }
 
-    def compare(rhs: AlgReal) = rhs match {
-        case Rat(rhsR) => rational.compare(r, rhsR)
-        case AlgRealPoly(rhsF, rhsS, rhsI) => {
-            if (rational.lteq(r, rhsI.left)) -1
-            else if (rational.lteq(rhsI.right, r)) 1
-            else if (rhsF.countRealRootsBetween(r, rhsI.right) == 1) -1
-            else if (rhsF.valueAt(r) == 0) 0
-            else 1
-        }
-    }
-}
-
-case class AlgRealPoly(
-    val f: Unipoly[BigInt],
-    val s: Int,
-    val i: Interval[QuotientField[BigInt]]
-) extends AlgReal {
-    def definingPolynomial = f
-    def isolatingInterval = i
-
-    def intervals = f.intervalsWithSign(s, i)
-
-    def compare(rhs: AlgReal) = rhs match {
-        case x: Rat => -x.compare(this)
-        case AlgRealPoly(_, _, rhsI) if rational.lteq(i.right, rhsI.left) => -1
-        case AlgRealPoly(_, _, rhsI) if rational.lteq(rhsI.right, i.left) => 1
-        case AlgRealPoly(rhsF, _, rhsI) if (f.gcd(rhsF).countRealRootsBetween(
-            rational.max(i.left, rhsI.left),
-            rational.min(i.right, rhsI.right)
-        ) == 1) => 0
-        case _ => this.intervals.zip(rhs.intervals).flatMap({ case (ivL, ivR) =>
-            if (rational.lteq(ivL.right, ivR.left)) Some(-1)
-            else if (rational.lteq(ivR.right, ivL.left)) Some(1)
-            else None
-        }).next
-    }
+    def + (rhs: AlgReal): AlgReal
+    def unary_-(): AlgReal
+    def - (rhs: AlgReal): AlgReal = this + (-rhs)
 }
 
 object AlgReal {
     val r = new Random
     val hensel: Hensel = new Hensel(r.nextBigInt(_))
+    val resultantPoly = new Resultant[Unipoly[BigInt]]
+
+    case class Rat(val r: QuotientField[BigInt]) extends AlgReal {
+        val f = Unipoly(-r.num, r.denom)
+        val i = Interval(r - 1, r + 1)
+
+        def definingPolynomial = f
+        def isolatingInterval = i
+        def intervals = {
+            val iv = Interval(r, r)
+            Iterator.continually(iv)
+        }
+
+        def compare(rhs: AlgReal) = rhs match {
+            case Rat(rhsR) => rational.compare(r, rhsR)
+            case AlgRealPoly(rhsF, rhsS, rhsI) => {
+                if (rational.lteq(r, rhsI.left)) -1
+                else if (rational.lteq(rhsI.right, r)) 1
+                else if (rhsF.countRealRootsBetween(r, rhsI.right) == 1) -1
+                else if (rhsF.valueAt(r) == 0) 0
+                else 1
+            }
+        }
+
+        def + (rhs: AlgReal) = rhs match {
+            case Rat(rhsR) => Rat(r + rhsR)
+            case x: AlgRealPoly => x + this
+        }
+
+        def unary_- = Rat(-r)
+    }
+
+    case class AlgRealPoly(
+        val f: Unipoly[BigInt],
+        val s: Int,
+        val i: Interval[QuotientField[BigInt]]
+    ) extends AlgReal {
+        def definingPolynomial = f
+        def isolatingInterval = i
+
+        def intervals = f.intervalsWithSign(s, i)
+
+        def compare(rhs: AlgReal) = rhs match {
+            case x: Rat => -x.compare(this)
+            case AlgRealPoly(_, _, rhsI) if rational.lteq(i.right, rhsI.left) => -1
+            case AlgRealPoly(_, _, rhsI) if rational.lteq(rhsI.right, i.left) => 1
+            case AlgRealPoly(rhsF, _, rhsI) if (f.gcd(rhsF).countRealRootsBetween(
+                rational.max(i.left, rhsI.left),
+                rational.min(i.right, rhsI.right)
+            ) == 1) => 0
+            case _ => this.intervals.zip(rhs.intervals).flatMap({ case (ivL, ivR) =>
+                if (rational.lteq(ivL.right, ivR.left)) Some(-1)
+                else if (rational.lteq(ivR.right, ivL.left)) Some(1)
+                else None
+            }).next
+        }
+
+        def + (rhs: AlgReal) = rhs match {
+            case x: Rat => mkAlgReal(
+                f.composition(x.definingPolynomial),
+                Interval(i.left + x.r, i.right + x.r)
+            )
+            case AlgRealPoly(rhsF, rhsS, rhsI) => {
+                val fy = f.mapCoeff(Unipoly(_)) // f(y)
+                val fxy = fy.composition(
+                    Unipoly(Unipoly.ind[BigInt], -Unipoly.one[BigInt])
+                ) // f(x - y)
+                val gy = rhsF.mapCoeff(Unipoly(_)) // g(y)
+                val res = resultantPoly.resultant(fxy, gy).squareFree
+                val ivs = intervals.zip(rhs.intervals).map {
+                    case (l, r) => l + r
+                }
+                mkAlgRealWithIntervals(res, ivs)
+            }
+        }
+
+        def unary_- = AlgRealPoly(f.composition(Unipoly.ind), -s, -i)
+
+        override def toString =
+            s"AlgRealPoly(${f.toStringWithInd("x")}, (${i.left}, ${i.right}))"
+    }
 
     def mkAlgReal(
         f: Unipoly[BigInt],
@@ -86,6 +128,24 @@ object AlgReal {
                 .find(iv2 => !iv2.contains(0))
                 .map(AlgRealPoly(f, s, _))
                 .getOrElse(Rat(0))
+        }
+    }
+
+    def mkAlgRealWithIntervals(
+        f2: Unipoly[BigInt],
+        ivs: Iterator[Interval[QuotientField[BigInt]]]
+    ): AlgReal = {
+        val ivBuffered = ivs.buffered
+        val ivFirst = ivBuffered.head
+        (for {
+            iv <- ivBuffered.find(i => f2.countRealRootsBetween(i.left, i.right) == 1)
+            f <- hensel.factor(f2).find(_.countRealRootsBetween(iv.left, iv.right) == 1)
+        } yield mkAlgReal(f, iv)) match {
+            case Some(x) => x
+            case None => {
+                val fStr = f2.toStringWithInd("x")
+                throw new RuntimeException(s"cannot find root of ${fStr} between ${ivFirst}")
+            }
         }
     }
 
