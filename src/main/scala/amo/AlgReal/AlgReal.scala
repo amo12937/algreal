@@ -23,6 +23,10 @@ sealed trait AlgReal extends Equals {
     def + (rhs: AlgReal): AlgReal
     def unary_-(): AlgReal
     def - (rhs: AlgReal): AlgReal = this + (-rhs)
+
+    def * (rhs: AlgReal): AlgReal
+    def inverse: AlgReal
+    def / (rhs: AlgReal): AlgReal = this * rhs.inverse
 }
 
 object AlgReal {
@@ -58,6 +62,13 @@ object AlgReal {
         }
 
         def unary_- = Rat(-r)
+
+        def * (rhs: AlgReal) = rhs match {
+            case Rat(rhsR) => Rat(r * rhsR)
+            case x: AlgRealPoly => x * this
+        }
+
+        def inverse = Rat(r.inverse)
     }
 
     case class AlgRealPoly(
@@ -88,7 +99,7 @@ object AlgReal {
         def + (rhs: AlgReal) = rhs match {
             case x: Rat => mkAlgReal(
                 f.composition(x.definingPolynomial),
-                Interval(i.left + x.r, i.right + x.r)
+                i + x.r
             )
             case AlgRealPoly(rhsF, rhsS, rhsI) => {
                 val fy = f.mapCoeff(Unipoly(_)) // f(y)
@@ -105,6 +116,29 @@ object AlgReal {
         }
 
         def unary_- = AlgRealPoly(f.composition(Unipoly.ind), -s, -i)
+
+        def * (rhs: AlgReal) = rhs match {
+            case Rat(r) => if (r == 0) Rat(r) else mkAlgReal(
+                Unipoly(f.cs.toIterator
+                    .zip(Iterator.iterate(r.num pow f.degreeInt)(_ / r.num * r.denom))
+                    .map({case (c, n) => c * n})
+                    .toVector
+                ), i * r
+            )
+            case AlgRealPoly(rhsF, rhsS, rhsI) => {
+                val fxy = Unipoly(f.cs.zipWithIndex.map({case (c, i) =>
+                    Unipoly(c).shift(i)
+                }).reverse)  // y^n f(x/y)
+                val gy = rhsF.mapCoeff(Unipoly(_)) // g(y)
+                val res = resultantPoly.resultant(fxy, gy).squareFree
+                val ivs = intervals.zip(rhs.intervals).map {
+                    case (l, r) => l * r
+                }
+                mkAlgRealWithIntervals(res, ivs)
+            }
+        }
+
+        def inverse = mkAlgReal(Unipoly(f.cs.reverse), i.inverse)
 
         override def toString =
             s"AlgRealPoly(${f.toStringWithInd("x")}, (${i.left}, ${i.right}))"

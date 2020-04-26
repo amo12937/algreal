@@ -13,15 +13,18 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
     "+" should {
         "return 5/6 when calculate 1/2 + 1/3" in {
             val actual = Rat(rational.create(1, 2)) + Rat(rational.create(1, 3))
+
             val expected = Rat(rational.create(5, 6))
+
             actual should be(expected)
         }
 
         "return (sqrt(2) + sqrt(3)) when calculate sqrt(2) + sqrt(3)" in {
             val sqrt2 = mkAlgReal((x^2) - 2, Interval(1, 2))
             val sqrt3 = mkAlgReal((x^2) - 3, Interval(1, 2))
-            val expected = mkAlgReal((x^4) - 10 * (x^2) + 1, Interval(3, 4))
             val actual = sqrt2 + sqrt3
+
+            val expected = mkAlgReal((x^4) - 10 * (x^2) + 1, Interval(3, 4))
 
             actual should be(expected)
         }
@@ -29,10 +32,63 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
         "return 1 when calculate (1 - sqrt(2)) + sqrt(2)" in {
             val u = mkAlgReal(((x - 1)^2) - 2, Interval(-1, 0))
             val v = mkAlgReal((x^2) - 2, Interval(1, 2))
-            val expected = Rat(1)
             val actual = u + v
 
+            val expected = Rat(1)
+
             actual should be(a[Rat])
+            actual should be(expected)
+        }
+    }
+
+    "*" should {
+        "return 1/6 when calculate 1/2 * 1/3" in {
+            val half = Rat(rational.create(1, 2))
+            val oneThird =  Rat(rational.create(1, 3))
+            val actual = half * oneThird
+
+            val expected = Rat(rational.create(1, 6))
+
+            actual should be(expected)
+        }
+
+        "return sqrt(6) when calculate sqrt(2) * sqrt(3)" in {
+            val sqrt2 = mkAlgReal((x^2) - 2, Interval(1, 2))
+            val sqrt3 = mkAlgReal((x^2) - 3, Interval(1, 2))
+            val actual = sqrt2 * sqrt3
+
+            val expected = mkAlgReal((x^2) - 6, Interval(2, 3))
+
+            actual should be(expected)
+        }
+
+        "return 2 when calculate sqrt(2) * sqrt(2)" in {
+            val sqrt2 = mkAlgReal((x^2) - 2, Interval(1, 2))
+            val actual = sqrt2 * sqrt2
+
+            val expected = Rat(2)
+
+            actual should be(a[Rat])
+            actual should be(expected)
+        }
+    }
+
+    "inverse" should {
+        "return 2 when calculate inverse of 1/2" in {
+            val half = Rat(rational.create(1, 2))
+            val actual = half.inverse
+
+            val expected = Rat(rational.create(2))
+
+            actual should be(expected)
+        }
+
+        "return 1/sqrt(2) when calculate inverse of sqrt(2)" in {
+            val sqrt2 = mkAlgReal((x^2) - 2, Interval(1, 2))
+            val actual = sqrt2.inverse
+
+            val expected = mkAlgReal(2 * (x^2) - 1, Interval(0, 1))
+
             actual should be(expected)
         }
     }

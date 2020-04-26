@@ -6,11 +6,17 @@ class Interval[T](val left: T, val right: T)(implicit ordering: Ordering[T]) ext
         ring.add(right, rhs.right)
     )
 
+    def + (rhs: T)(implicit ring: RingTrait[T]) = Interval(
+        ring.add(left, rhs),
+        ring.add(right, rhs)
+    )
+
     def unary_-(implicit ring: RingTrait[T]) = Interval(
         ring.negate(right), ring.negate(left)
     )
 
     def - (rhs: Interval[T])(implicit ring: RingTrait[T]) = this + (-rhs)
+    def - (rhs: T)(implicit ring: RingTrait[T]) = this + ring.negate(rhs)
 
     def * (rhs: Interval[T])(implicit ring: RingTrait[T]) = {
         val candidates = Vector(
@@ -24,6 +30,22 @@ class Interval[T](val left: T, val right: T)(implicit ordering: Ordering[T]) ext
             candidates.reduce(ordering.max)
         )
     }
+
+    def * (rhs: T)(implicit ring: RingTrait[T]) = {
+        val a = ring.times(left, rhs)
+        val b = ring.times(right, rhs)
+        Interval(ordering.min(a, b), ordering.max(a, b))
+    }
+
+    def inverse(implicit integralDomain: IntegralDomainTrait[T]) =
+        if (
+            ordering.lt(right, integralDomain.zero) ||
+            ordering.lt(integralDomain.zero, left)
+        ) Interval(
+            integralDomain.divide(integralDomain.one, right),
+            integralDomain.divide(integralDomain.one, left)
+        )
+        else throw new ArithmeticException("divide by 0")
 
     def abs(implicit ring: RingTrait[T]) =
         if (ordering.lteq(ring.zero, left)) this
