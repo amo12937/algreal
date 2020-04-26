@@ -5,7 +5,8 @@ import amo.algreal.Field.QuotientField
 import amo.util.Random
 
 object implicits
-    extends BigInteger.implicits
+    extends AlgReal.implicits
+    with BigInteger.implicits
     with Closure.implicits
     with QuotientField.implicits
     with Random.implicits

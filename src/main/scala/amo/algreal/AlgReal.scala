@@ -1,10 +1,10 @@
 package amo.algreal
 
-import scala.util.Random
+import scala.util.{ Random => ScalaRandom }
 
-import amo.implicits._
 import amo.algreal.Field.{ FieldTrait, QuotientField }
 import amo.algreal.factors.Hensel
+import amo.util.Random
 
 sealed trait AlgReal extends Equals {
     def definingPolynomial: Unipoly[BigInt]
@@ -31,10 +31,37 @@ sealed trait AlgReal extends Equals {
     def pow(n: Int): AlgReal
 }
 
+object AlgRealImplicits
+    extends BigInteger.implicits
+    with Closure.implicits
+    with QuotientField.implicits
+    with Random.implicits
+    with StrumExtension.implicits
+    with Unipoly.implicits
+
 object AlgReal {
-    val r = new Random
+    import AlgRealImplicits._
+
+    val r = new ScalaRandom
     val hensel: Hensel = new Hensel(r.nextBigInt(_))
     val resultantPoly = new Resultant[Unipoly[BigInt]]
+
+    implicit lazy val algRealField =
+        new FieldTrait[AlgReal]
+        with Ordering[AlgReal] {
+            def compare(x: AlgReal, y: AlgReal) = x compare y
+
+            val zero = Rat(0)
+            val one = Rat(1)
+
+            def add(a: AlgReal, b: AlgReal) = a + b
+            def negate(a: AlgReal) = -a
+            def times(a: AlgReal, b: AlgReal) = a * b
+            def timesN(a: AlgReal, n: Int) = a * Rat(n)
+            def pow(a: AlgReal, n: Int) = a.pow(n)
+
+            def divide(a: AlgReal, b: AlgReal) = a / b
+        }
 
     case class Rat(val r: QuotientField[BigInt]) extends AlgReal {
         val f = Unipoly(-r.num, r.denom)
@@ -147,7 +174,7 @@ object AlgReal {
         def pow(n: Int) = {
             val g = Unipoly.ind[BigInt].pow(n)
             val k = f.leadingCoefficient.pow(g.degreeInt - f.degreeInt + 1)
-            g.pseudoMod(f).mapCoeff[AlgReal](c => Rat(rational.create(c, k)))(implicits.algReal).valueAt(this)
+            g.pseudoMod(f).mapCoeff[AlgReal](c => Rat(rational.create(c, k))).valueAt(this)
         }
 
         override def toString =
@@ -237,22 +264,6 @@ object AlgReal {
         } yield x
 
     trait implicits {
-        implicit val algReal =
-            new FieldTrait[AlgReal]
-            with Ordering[AlgReal] {
-                def compare(x: AlgReal, y: AlgReal) = x compare y
-
-                val zero = Rat(0)
-                val one = Rat(1)
-
-                def add(a: AlgReal, b: AlgReal) = a + b
-                def negate(a: AlgReal) = -a
-                def times(a: AlgReal, b: AlgReal) = a * b
-                def timesN(a: AlgReal, n: Int) = a * Rat(n)
-                def pow(a: AlgReal, n: Int) = a.pow(n)
-
-                def divide(a: AlgReal, b: AlgReal) = a / b
-            }
+        implicit val algReal = algRealField
     }
-    object implicits extends implicits
 }
