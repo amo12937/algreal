@@ -28,16 +28,20 @@ sealed trait AlgReal extends Equals {
     def inverse: AlgReal
     def / (rhs: AlgReal): AlgReal = this * rhs.inverse
 
-    def pow(n: Int): AlgReal
+    def pow(n: BigInt): AlgReal
+    //def nthRoot(n: Int): AlgReal
+    //def powRat(q: QuotientField[BigInt]) = nthRoot(q.denom).pow(q.num)
 }
 
 object AlgRealImplicits
-    extends BigInteger.implicits
-    with Closure.implicits
-    with QuotientField.implicits
-    with Random.implicits
-    with StrumExtension.implicits
-    with Unipoly.implicits
+extends BigInteger.implicits
+with Closure.implicits
+with QuotientField.implicits
+with Random.implicits
+with StrumExtension.implicits
+with Unipoly.implicits {
+    val qUnipoly = Unipoly.makeUnipoly[QuotientField[BigInt]]
+}
 
 object AlgReal {
     import AlgRealImplicits._
@@ -99,7 +103,11 @@ object AlgReal {
 
         def inverse = Rat(r.inverse)
 
-        def pow(n: Int) = Rat(r.pow(n))
+        def pow(n: BigInt) = if (n < Int.MaxValue) Rat(r.pow(n.intValue)) else {
+            val (q, r) = n /% 2
+            val x = pow(q)
+            if (r == 1) x * x * this else x * x
+        }
     }
 
     case class AlgRealPoly(
@@ -171,11 +179,16 @@ object AlgReal {
 
         def inverse = mkAlgReal(Unipoly(f.cs.reverse), i.inverse)
 
-        def pow(n: Int) = {
-            val g = Unipoly.ind[BigInt].pow(n)
-            val k = f.leadingCoefficient.pow(g.degreeInt - f.degreeInt + 1)
-            g.pseudoMod(f).mapCoeff[AlgReal](c => Rat(rational.create(c, k))).valueAt(this)
-        }
+        def pow(n: BigInt) =
+            if (n == 0) Rat(1)
+            else if (n == 1) this
+            else if (n < 0) pow(-n).inverse
+            else {
+                val fq = f.mapCoeff(rational.create(_))
+                val g = qUnipoly.powMod(Unipoly.ind, n, fq)
+                val k = Rat(fq.leadingCoefficient).pow(n - f.degreeInt + 1)
+                g.mapCoeff[AlgReal](c => Rat(c) / k).valueAt(this)
+            }
 
         override def toString =
             s"AlgRealPoly(${f.toStringWithInd("x")}, (${i.left}, ${i.right}))"

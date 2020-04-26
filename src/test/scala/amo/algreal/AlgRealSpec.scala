@@ -103,11 +103,20 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
             actual should be(expected)
         }
 
-        "return 3363 - 2378 sqrt(2) when calculate (sqrt(2) - 1)^2" in {
+        "return 3363 - 2378 sqrt(2) when calculate (sqrt(2) - 1)^10" in {
             val a = mkAlgReal((x^2) + 2 * x - 1, Interval(0, 1))
             val actual = a pow 10
 
             val expected = mkAlgReal((x^2) - 6726 * x + 1, Interval(0, 1))
+
+            actual should be(expected)
+        }
+
+        "return sqet(2) + 1 when calculate (sqrt(2) - 1)^(-1)" in {
+            val a = mkAlgReal((x^2) + 2 * x - 1, Interval(0, 1))
+            val actual = a pow (-1)
+
+            val expected = mkAlgReal((x^2) - 2 * x - 1, Interval(2, 3))
 
             actual should be(expected)
         }
