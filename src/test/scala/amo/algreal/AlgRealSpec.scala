@@ -122,7 +122,34 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
         }
     }
 
+    "nthRoot" should {
+        "return 2 when calculare sqrt(4)" in {
+            val actual = Rat(4).nthRoot(2)
+
+            val expected = Rat(2)
+
+            actual should be(expected)
+        }
+
+        "return sqrt(2) when calculate sqrt(2)" in {
+            val actual = Rat(2).nthRoot(2)
+
+            val expected = mkAlgReal((x^2) - 2, Interval(1, 2))
+
+            actual should be(expected)
+        }
+    }
+
     "realRoots" should {
+        "return -2, 2 when supplied x^2 - 4" in {
+            val f = (x^2) - 4
+            val actual = AlgReal.realRoots(f).toSet
+
+            val expected = Set(Rat(2), Rat(-2))
+
+            actual should be(expected)
+        }
+
         "return list of AlgReal value where f becomes zero" in {
             val f = (x^3) - (x^2) - 2 * x + 2
             val actual = AlgReal.realRoots(f).toSet

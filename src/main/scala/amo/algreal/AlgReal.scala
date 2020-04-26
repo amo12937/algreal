@@ -6,7 +6,7 @@ import amo.algreal.Field.{ FieldTrait, QuotientField }
 import amo.algreal.factors.Hensel
 import amo.util.Random
 
-sealed trait AlgReal extends Equals {
+sealed trait AlgReal extends Equals with Ordered[AlgReal] {
     def definingPolynomial: Unipoly[BigInt]
     def isolatingInterval: Interval[QuotientField[BigInt]]
 
@@ -29,8 +29,11 @@ sealed trait AlgReal extends Equals {
     def / (rhs: AlgReal): AlgReal = this * rhs.inverse
 
     def pow(n: BigInt): AlgReal
-    //def nthRoot(n: Int): AlgReal
-    //def powRat(q: QuotientField[BigInt]) = nthRoot(q.denom).pow(q.num)
+    def nthRoot(n: Int): AlgReal
+    def powRat(q: QuotientField[BigInt]) =
+        if (q.denom < Int.MaxValue) nthRoot(q.denom.intValue).pow(q.num)
+        else new RuntimeException(s"to big denom: ${q}")
+    def sqrt = nthRoot(2)
 }
 
 object AlgRealImplicits
@@ -107,6 +110,26 @@ object AlgReal {
             val (q, r) = n /% 2
             val x = pow(q)
             if (r == 1) x * x * this else x * x
+        }
+
+        def nthRoot(n: Int) = {
+            lazy val x = Unipoly.ind[BigInt]
+            if (n == 0) throw new ArithmeticException("0th root")
+            else if (n < 0) inverse.nthRoot(-n)
+            else if (r == 0) Rat(0)
+            else if (r > 0) realRoots(
+                r.denom * (x^n) - r.num, Closure(0), Closure.PositiveInfinity
+            ).toVector match {
+                case Vector(res) => res
+                case l => throw new RuntimeException(s"none or multiple roots $l")
+            }
+            else if (n % 2 == 1) realRoots(
+                r.denom * (x^n) - r.num, Closure.NegativeInfinity, Closure(0)
+            ).toVector match {
+                case Vector(res) => res
+                case l => throw new RuntimeException(s"none or multiple roots $l")
+            }
+            else throw new RuntimeException("root negative")
         }
     }
 
@@ -190,6 +213,32 @@ object AlgReal {
                 g.mapCoeff[AlgReal](c => Rat(c) / k).valueAt(this)
             }
 
+        def nthRoot(n: Int) = {
+            lazy val x = Unipoly.ind[BigInt]
+            if (n == 0) throw new ArithmeticException("0th root")
+            else if (n < 0) inverse.nthRoot(-n)
+            else if (this == Rat(0)) Rat(0)
+            else if (this > Rat(0)) realRoots(
+                f.composition(x^n), Closure(0), Closure.PositiveInfinity
+            ).filter(res => {
+                val u = res pow n
+                Rat(i.left) <= u && u <= Rat(i.right)
+            }).toVector match {
+                case Vector(res) => res
+                case l => throw new RuntimeException(s"none or multiple roots $l")
+            }
+            else if (n % 2 == 1) realRoots(
+                f.composition(x^n), Closure.NegativeInfinity, Closure(0)
+            ).filter(res => {
+                val u = res pow n
+                Rat(i.left) <= u && u <= Rat(i.right)
+            }).toVector match {
+                case Vector(res) => res
+                case l => throw new RuntimeException(s"none or multiple roots $l")
+            }
+            else throw new RuntimeException("root negative")
+        }
+
         override def toString =
             s"AlgRealPoly(${f.toStringWithInd("x")}, (${i.left}, ${i.right}))"
     }
@@ -266,17 +315,20 @@ object AlgReal {
     }
 
     def realRoots(
-        f: Unipoly[BigInt]
+        f: Unipoly[BigInt],
+        lb: Closure[QuotientField[BigInt]] = Closure.NegativeInfinity,
+        ub: Closure[QuotientField[BigInt]] = Closure.PositiveInfinity
     ): Iterator[AlgReal] =
         if (f.degreeInt <= 0) Iterator.empty else for {
             f2 <- Iterator(f.squareFree)
             g <- hensel.factor(f2)
             x <- realRootsBetween(
-                g, Closure.NegativeInfinity, Closure.PositiveInfinity
+                g, lb, ub
             )
         } yield x
 
     trait implicits {
         implicit val algReal = algRealField
+        implicit val nToAlgReal = algReal.fromInt _
     }
 }
