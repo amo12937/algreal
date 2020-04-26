@@ -20,6 +20,16 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
             actual should be(expected)
         }
 
+        "return sqrt(2) + 1/16 when calculate sqrt(2) + 1/16" in {
+            val sqrt2 = Rat(2).sqrt
+            val oneSixteenth = Rat(rational.create(1, 16))
+            val actual = sqrt2 + oneSixteenth
+
+            val expected = mkAlgReal(256 * (x^2) - 32 * x - 511, Interval(1, 2))
+
+            actual should be(expected)
+        }
+
         "return (sqrt(2) + sqrt(3)) when calculate sqrt(2) + sqrt(3)" in {
             val sqrt2 = mkAlgReal((x^2) - 2, Interval(1, 2))
             val sqrt3 = mkAlgReal((x^2) - 3, Interval(1, 2))
@@ -38,6 +48,46 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
             val expected = Rat(1)
 
             actual should be(a[Rat])
+            actual should be(expected)
+        }
+    }
+
+    "unary_-" should {
+        "return negative value" in {
+            val actual = -(Rat(1) + Rat(2).sqrt)
+
+            val expected = mkAlgReal((x^2) + 2 * x - 1, Interval(-3, -2))
+
+            actual should be(expected)
+        }
+    }
+
+    "-" should {
+        "return sqrt(2) - sqrt(3) when calculate sqrt(2) - sqrt(3)" in {
+            val u = Rat(2).sqrt
+            val v = Rat(3).sqrt
+            val actual = u - v
+            val expected = mkAlgReal((x^4) - 10 * (x^2) + 1, Interval(-1, 0))
+            actual should be(expected)
+        }
+
+        "return 1 + sqrt(2) - sqrt(3) when calculate (1 + sqrt(2)) - sqrt(3)" in {
+            val u = 1 + Rat(2).sqrt
+            val v = Rat(3).sqrt
+            val actual = u - v
+            val expected = mkAlgReal((x^4) - 4 * (x^3) - 4 * (x^2) + 16 * x - 8, Interval(0, 1))
+            actual should be(expected)
+        }
+
+        "return (1 + sqrt(2))/16 - sqrt(3) when calculate (1 + sqrt(2))/16 - sqrt(3)" in {
+            val u = (1 + Rat(2).sqrt) / 16
+            val v = Rat(3).sqrt
+            val actual = u - v
+
+            val expected = mkAlgReal(
+                65536 * (x^4) - 16384 * (x^3) - 392704 * (x^2) + 49216 * x + 585217,
+                Interval(rational.create(-13, 8), -1)
+            )
             actual should be(expected)
         }
     }
@@ -168,6 +218,18 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
             val f = (x^2) - 2 * x + 1
             val actual = AlgReal.realRoots(f).toSet
             val expected = Set(Rat(1))
+            actual should be(expected)
+        }
+
+        "return list of AlgReal when coefficient is AlgReal" in {
+            val y = Unipoly.ind[AlgReal]
+            val f = (y^2) - (Rat(1) + Rat(2).sqrt) * y - Rat(3).sqrt
+            val actual = AlgReal.realRoots(f).toSet
+
+            val expected = Set(
+                mkAlgReal(Unipoly(9, 0, -18, 12, -5, 4, 2, -4, 1), Interval(-1, 0)),
+                mkAlgReal(Unipoly(9, 0, -18, 12, -5, 4, 2, -4, 1), Interval(2, 3))
+            )
             actual should be(expected)
         }
     }

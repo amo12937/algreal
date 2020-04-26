@@ -4,7 +4,7 @@ import scala.util.{ Random => ScalaRandom }
 
 import amo.algreal.factors.Hensel
 import amo.algreal.Field.{ FieldTrait, QuotientField }
-import amo.algreal.polynomial.{ StrumExtension, Unipoly }
+import amo.algreal.polynomial.{ AlgRealExtension, StrumExtension, Unipoly }
 import amo.util.Random
 
 sealed trait AlgReal extends Equals with Ordered[AlgReal] {
@@ -39,6 +39,7 @@ sealed trait AlgReal extends Equals with Ordered[AlgReal] {
 
 object AlgRealImplicits
 extends BigInteger.implicits
+with AlgRealExtension.implicits
 with Closure.implicits
 with QuotientField.implicits
 with Random.implicits
@@ -70,6 +71,8 @@ object AlgReal {
 
             def divide(a: AlgReal, b: AlgReal) = a / b
         }
+
+    lazy val algRealQuotientField = QuotientField.makeQuotientField[AlgReal]
 
     case class Rat(val r: QuotientField[BigInt]) extends AlgReal {
         val f = Unipoly(-r.num, r.denom)
@@ -161,7 +164,7 @@ object AlgReal {
 
         def + (rhs: AlgReal) = rhs match {
             case x: Rat => mkAlgReal(
-                f.composition(x.definingPolynomial),
+                f.homogeneousCompP(x.definingPolynomial, x.r.denom)._1,
                 i + x.r
             )
             case AlgRealPoly(rhsF, rhsS, rhsI) => {
@@ -178,7 +181,7 @@ object AlgReal {
             }
         }
 
-        def unary_- = AlgRealPoly(f.composition(Unipoly.ind), -s, -i)
+        def unary_- = AlgRealPoly(f.composition(-Unipoly.ind[BigInt]), -s, -i)
 
         def * (rhs: AlgReal) = rhs match {
             case Rat(r) => if (rational.equiv(r, 0)) Rat(r) else mkAlgReal(
@@ -327,6 +330,20 @@ object AlgReal {
                 g, lb, ub
             )
         } yield x
+
+    def realRoots(
+        f: Unipoly[AlgReal]
+    ): Iterator[AlgReal] =
+        if (f.degreeInt <= 0) Iterator.empty else (for {
+            f2 <- Iterator(f.squareFree)
+            x <- realRoots(f2.elimN)
+        } yield x).filter(x => {
+            val iv = x.isolatingInterval
+            f.countRealRootsBetween(
+                Rat(iv.left),
+                Rat(iv.right)
+            ) == 1
+        })
 
     trait implicits {
         implicit val algReal = algRealField

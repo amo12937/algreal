@@ -11,6 +11,10 @@ object StrumExtension {
             case _ => false
         }).length
 
+    def varianceAt[T](t: T, fs: Vector[Unipoly[T]])(
+        implicit ordering: Ordering[T]
+    ): Int = variance(fs.map(_.signAt(t)))
+
     def varianceAt[T](
         q: QuotientField[T], fs: Vector[Unipoly[T]]
     )(
@@ -56,6 +60,13 @@ object StrumExtension {
                     (g, x, t, -a)
                 }).map({case (_, g, _, t) => g.scale(t)})
                     .takeWhile(f => !f.isZero)
+            }
+
+            def countRealRootsBetween(
+                a: T, b: T
+            ): Int = {
+                val fs = negativePRS(unipoly.diff).toVector
+                varianceAt(a, fs) - varianceAt(b, fs)
             }
 
             def countRealRootsBetween(

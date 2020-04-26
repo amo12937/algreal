@@ -4,6 +4,7 @@ import amo.algreal.{ GcdDomainTrait }
 
 sealed trait MulPoly[T] {
     def toUnipoly: Unipoly[MulPoly[T]]
+    def scalarPart: T
 
     def map[S](func: T => S)(
         implicit gcdDomainMS: GcdDomainTrait[MulPoly[S]]
@@ -19,6 +20,10 @@ object MulPoly {
         implicit gcdDomainM: GcdDomainTrait[MulPoly[T]]
     ) extends MulPoly[T] {
         def toUnipoly = f
+        def scalarPart = f.cs match {
+            case Vector() => gcdDomainM.zero.scalarPart
+            case head +: _ => head.scalarPart
+        }
 
         def map[S](func: T => S)(
             implicit gcdDomainMS: GcdDomainTrait[MulPoly[S]]
@@ -33,6 +38,7 @@ object MulPoly {
         implicit gcdDomainM: GcdDomainTrait[MulPoly[T]]
     ) extends MulPoly[T] {
         def toUnipoly = Unipoly(this)
+        def scalarPart = t
 
         def map[S](func: T => S)(
             implicit gcdDomainMS: GcdDomainTrait[MulPoly[S]]

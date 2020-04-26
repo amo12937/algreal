@@ -100,6 +100,10 @@ class Unipoly[T](val cs: Vector[T])(
         gcdDomainT.add(c, gcdDomainT.times(res, t))
     }
 
+    def signAt(t: T)(
+        implicit orderingT: Ordering[T]
+    ): Int = gcdDomainT.signum(valueAt(t))
+
     def valueAt(q: QuotientField[T])(
         implicit tToF: T => QuotientField[T],
         gcdDomainF: GcdDomainTrait[QuotientField[T]]
@@ -115,6 +119,19 @@ class Unipoly[T](val cs: Vector[T])(
         if (g.isZero) Unipoly()
         else cs.foldRight(Unipoly()) { (c, res) =>
             res * g addT c
+        }
+
+    def homogeneousCompP(g: Unipoly[T], den: T): (Unipoly[T], T) =
+        if (isZero) (this, gcdDomainT.one) else {
+            val d = gcdDomainT.pow(den, degreeInt)
+            (
+                Unipoly(cs.toIterator.zip(
+                    Iterator.iterate(d)(gcdDomainT.divide(_, den))
+                ).map({ case (c, dd) =>
+                    gcdDomainT.times(c, dd)
+                }).toVector).composition(g),
+                d
+            )
         }
 
     def content: T = gcdDomainT.content(cs)
