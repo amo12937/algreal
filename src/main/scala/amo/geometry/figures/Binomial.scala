@@ -1,5 +1,7 @@
 package amo.geometry.figures
 
+import scala.language.implicitConversions
+
 import amo.algreal.{ EuclideanDomainTrait, GcdDomainTrait }
 import amo.algreal.polynomial.Unipoly
 import amo.implicits._
@@ -38,6 +40,10 @@ object Binomial {
     def one[T](
         implicit gcdDomainT: GcdDomainTrait[T]
     ): Binomial[T] = Binomial(Unipoly.one[Unipoly[T]])
+
+    implicit def apply[T](t: T)(
+        implicit gcdDomainT: GcdDomainTrait[T]
+    ): Binomial[T] = Binomial(Unipoly(Unipoly(t)))
 
     trait implicits {
         this: Unipoly.implicits =>

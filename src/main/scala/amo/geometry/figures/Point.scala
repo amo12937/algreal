@@ -12,4 +12,10 @@ case class Point[T](x: T, y: T)(implicit field: FieldTrait[T]) {
             field.times(x, rhs.x),
             field.times(y, rhs.y)
         )
+
+    def det (rhs: Point[T]): T =
+        field.sub(
+            field.times(x, rhs.y),
+            field.times(y, rhs.x)
+        )
 }
