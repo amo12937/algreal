@@ -13,16 +13,16 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
 
     "+" should {
         "return 5/6 when calculate 1/2 + 1/3" in {
-            val actual = Rat(rational.create(1, 2)) + Rat(rational.create(1, 3))
+            val actual = Rat(rational(1, 2)) + Rat(rational(1, 3))
 
-            val expected = Rat(rational.create(5, 6))
+            val expected = Rat(rational(5, 6))
 
             actual should be(expected)
         }
 
         "return sqrt(2) + 1/16 when calculate sqrt(2) + 1/16" in {
             val sqrt2 = Rat(2).sqrt
-            val oneSixteenth = Rat(rational.create(1, 16))
+            val oneSixteenth = Rat(rational(1, 16))
             val actual = sqrt2 + oneSixteenth
 
             val expected = mkAlgReal(256 * (x^2) - 32 * x - 511, Interval(1, 2))
@@ -86,7 +86,7 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
 
             val expected = mkAlgReal(
                 65536 * (x^4) - 16384 * (x^3) - 392704 * (x^2) + 49216 * x + 585217,
-                Interval(rational.create(-13, 8), -1)
+                Interval(rational(-13, 8), -1)
             )
             actual should be(expected)
         }
@@ -94,11 +94,11 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
 
     "*" should {
         "return 1/6 when calculate 1/2 * 1/3" in {
-            val half = Rat(rational.create(1, 2))
-            val oneThird =  Rat(rational.create(1, 3))
+            val half = Rat(rational(1, 2))
+            val oneThird =  Rat(rational(1, 3))
             val actual = half * oneThird
 
-            val expected = Rat(rational.create(1, 6))
+            val expected = Rat(rational(1, 6))
 
             actual should be(expected)
         }
@@ -126,10 +126,10 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
 
     "inverse" should {
         "return 2 when calculate inverse of 1/2" in {
-            val half = Rat(rational.create(1, 2))
+            val half = Rat(rational(1, 2))
             val actual = half.inverse
 
-            val expected = Rat(rational.create(2))
+            val expected = Rat(rational(2))
 
             actual should be(expected)
         }
@@ -146,10 +146,10 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
 
     "pow" should {
         "return 16/81 when calculate (2/3)^4" in {
-            val twoThird = Rat(rational.create(2, 3))
+            val twoThird = Rat(rational(2, 3))
             val actual = twoThird pow 4
 
-            val expected = Rat(rational.create(16, 81))
+            val expected = Rat(rational(16, 81))
 
             actual should be(expected)
         }
@@ -207,8 +207,8 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
 
             val expected = Set(
                 Rat(1),
-                AlgRealPoly((x^2) - 2, 1, Interval(rational.create(3, 4), rational.create(3, 2))),
-                AlgRealPoly((x^2) - 2, -1, Interval(rational.create(-3, 4), rational.create(-3, 2)))
+                AlgRealPoly((x^2) - 2, 1, Interval(rational(3, 4), rational(3, 2))),
+                AlgRealPoly((x^2) - 2, -1, Interval(rational(-3, 4), rational(-3, 2)))
             )
 
             actual should be(expected)

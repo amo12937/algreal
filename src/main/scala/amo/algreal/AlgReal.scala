@@ -186,7 +186,7 @@ object AlgReal {
         def unary_- = AlgRealPoly(f.composition(-Unipoly.ind[BigInt]), -s, -i)
 
         def * (rhs: AlgReal) = rhs match {
-            case Rat(r) => if (rational.equiv(r, 0)) Rat(r) else mkAlgReal(
+            case Rat(r) => if (r == QuotientField.zero[BigInt]) Rat(r) else mkAlgReal(
                 Unipoly(f.cs.toIterator
                     .zip(Iterator.iterate(r.num pow f.degreeInt)(_ / r.num * r.denom))
                     .map({case (c, n) => c * n})
@@ -213,7 +213,7 @@ object AlgReal {
             else if (n == 1) this
             else if (n < 0) pow(-n).inverse
             else {
-                val fq = f.mapCoeff(rational.create(_))
+                val fq = f.mapCoeff(QuotientField(_))
                 val g = qUnipoly.powMod(Unipoly.ind, n, fq)
                 val k = Rat(fq.leadingCoefficient).pow(n - f.degreeInt + 1)
                 g.mapCoeff[AlgReal](c => Rat(c) / k).valueAt(this)
@@ -256,7 +256,7 @@ object AlgReal {
         if (iv.left == iv.right && f.valueAt(iv.left) == 0) Rat(iv.left)
         else if (iv.contains(0) && f.valueAt(0) == 0) Rat(0)
         else if (f.degreeInt == 1) f.cs match {
-            case Vector(a, b) => Rat(rational.create(-a, b))
+            case Vector(a, b) => Rat(QuotientField(-a, b))
         }
         else {
             val s = f.signAt(iv.right) match {

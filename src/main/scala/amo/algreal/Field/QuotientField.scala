@@ -69,12 +69,9 @@ trait QuotientFieldTrait[T] extends FieldTrait[QuotientField[T]] {
     def pow(a: QuotientField[T], n: Int) = a pow n
 
     def divide(a: QuotientField[T], b: QuotientField[T]) = a / b
-}
 
-trait QuotientFieldCreatorTrait[T] {
-    implicit val gcdDomainT: GcdDomainTrait[T]
-    implicit val nToRingT: Int => T
-    def create(num: T, denom: T = gcdDomainT.one): QuotientField[T] = QuotientField(num, denom)
+    def apply(num: T, denom: T): QuotientField[T] = QuotientField(num, denom)
+    def apply(num: T): QuotientField[T] = apply(num, 1)
 }
 
 object QuotientField {
@@ -104,11 +101,17 @@ object QuotientField {
         new QuotientField(n, d)
     }
 
+    def apply[T](num: T)(
+        implicit gcdDomainT: GcdDomainTrait[T]
+    ): QuotientField[T] = apply(num, gcdDomainT.one)
+
+    def zero[T](implicit gcdDomainT: GcdDomainTrait[T]) =
+        apply(gcdDomainT.zero)
+
     def makeQuotientField[T](
         implicit implicitlyGcdDomainT: GcdDomainTrait[T]
     ) = new QuotientFieldTrait[T]
-    with QuotientFieldEqTrait[T]
-    with QuotientFieldCreatorTrait[T] {
+    with QuotientFieldEqTrait[T] {
         val gcdDomainT = implicitlyGcdDomainT
         val ring = implicitlyGcdDomainT
         val nToRingT = implicitlyGcdDomainT.fromInt
@@ -120,5 +123,10 @@ object QuotientField {
         implicit def tToQuotientField[T](t: T)(
             implicit gcdDomainT: GcdDomainTrait[T]
         ): QuotientField[T] = QuotientField(t, gcdDomainT.one)
+
+        implicit def autoMakeQuotientField[T](
+            implicit implicitlyGcdDomainT: GcdDomainTrait[T]
+        ): QuotientFieldTrait[T]
+        with QuotientFieldEqTrait[T] = makeQuotientField[T]
     }
 }

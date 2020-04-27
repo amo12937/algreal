@@ -39,10 +39,10 @@ class UnipolyStrumExtensionSpec extends AnyWordSpec with Matchers {
 
             val expected = Vector[Interval[QuotientField[BigInt]]](
                 Interval(1, 2),
-                Interval(1, rational.create(3, 2)),
-                Interval(rational.create(5, 4), rational.create(5, 4)),
-                Interval(rational.create(5, 4), rational.create(5, 4)),
-                Interval(rational.create(5, 4), rational.create(5, 4)),
+                Interval(1, rational(3, 2)),
+                Interval(rational(5, 4), rational(5, 4)),
+                Interval(rational(5, 4), rational(5, 4)),
+                Interval(rational(5, 4), rational(5, 4)),
             )
             actual should be(expected)
         }
@@ -54,10 +54,10 @@ class UnipolyStrumExtensionSpec extends AnyWordSpec with Matchers {
 
             val expected = Vector[Interval[QuotientField[BigInt]]](
                 Interval(1, 2),
-                Interval(1, rational.create(3, 2)),
-                Interval(rational.create(5, 4), rational.create(3, 2)),
-                Interval(rational.create(11, 8), rational.create(3, 2)),
-                Interval(rational.create(11, 8), rational.create(23, 16)),
+                Interval(1, rational(3, 2)),
+                Interval(rational(5, 4), rational(3, 2)),
+                Interval(rational(11, 8), rational(3, 2)),
+                Interval(rational(11, 8), rational(23, 16)),
             )
             actual should be(expected)
         }
@@ -79,7 +79,7 @@ class UnipolyStrumExtensionSpec extends AnyWordSpec with Matchers {
         "return upper bound in which root exists" in {
             val f = (x^2) - 2
             val actual = f.rootBound
-            val expected = rational.create(3)
+            val expected = rational(3)
             actual should be(expected)
         }
     }

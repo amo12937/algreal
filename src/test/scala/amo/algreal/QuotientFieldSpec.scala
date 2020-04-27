@@ -10,7 +10,7 @@ class RationalNumberSpec
 extends AnyWordSpec
 with Matchers
 with TableDrivenPropertyChecks {
-    "rational.create" should {
+    "rational.apply" should {
         "create rational number" in {
             val cases = Table(
                 ("inputN", "inputD", "outputN", "outputD"),
@@ -23,7 +23,7 @@ with TableDrivenPropertyChecks {
             )
 
             forAll(cases) { (inputN, inputD, outputN, outputD) =>
-                val q = rational.create(inputN, inputD)
+                val q = rational(inputN, inputD)
                 q.num should be(outputN)
                 q.denom should be(outputD)
             }
