@@ -11,6 +11,12 @@ case class Binomial[T](f: Unipoly[Unipoly[T]])(
 ) {
     def valueAt(p: Point[T]): T = f.valueAt(Unipoly(p.x)).valueAt(p.y)
 
+    def valueAtX(yTofx: Unipoly[T]): Unipoly[T] = f.cs.zipWithIndex.map({case (c, i) =>
+        c.composition(yTofx) * Unipoly.ind[T].pow(i)
+    }).foldLeft(Unipoly.zero[T])(_ + _)
+
+    def valueAtY(xTofy: Unipoly[T]): Unipoly[T] = f.valueAt(xTofy)
+
     def + (rhs: Binomial[T]): Binomial[T] = Binomial(f + rhs.f)
     def unary_-(): Binomial[T] = Binomial(-f)
     def - (rhs: Binomial[T]): Binomial[T] = Binomial(f - rhs.f)
