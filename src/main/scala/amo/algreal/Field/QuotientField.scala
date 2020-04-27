@@ -71,14 +71,6 @@ trait QuotientFieldTrait[T] extends FieldTrait[QuotientField[T]] {
     def divide(a: QuotientField[T], b: QuotientField[T]) = a / b
 }
 
-trait QuotientFieldOrdering[T] extends Ordering[QuotientField[T]] {
-    implicit val nToRingT: Int => T
-    implicit val orderingT: Ordering[T]
-
-    def compare(x: QuotientField[T], y: QuotientField[T]): Int =
-        orderingT.compare((x - y).num, 0)
-}
-
 trait QuotientFieldCreatorTrait[T] {
     implicit val gcdDomainT: GcdDomainTrait[T]
     implicit val nToRingT: Int => T
@@ -119,17 +111,6 @@ object QuotientField {
     with QuotientFieldCreatorTrait[T] {
         val gcdDomainT = implicitlyGcdDomainT
         val ring = implicitlyGcdDomainT
-        val nToRingT = implicitlyGcdDomainT.fromInt
-    }
-
-    def makeComparableQuotientField[T](
-        implicit implicitlyGcdDomainT: GcdDomainTrait[T],
-        implicitlyOrderingT: Ordering[T]
-    ) = new QuotientFieldTrait[T]
-    with QuotientFieldOrdering[T]
-    with QuotientFieldCreatorTrait[T] {
-        val gcdDomainT = implicitlyGcdDomainT
-        val orderingT = implicitlyOrderingT
         val nToRingT = implicitlyGcdDomainT.fromInt
     }
 

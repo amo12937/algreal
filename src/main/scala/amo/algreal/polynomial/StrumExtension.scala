@@ -1,7 +1,7 @@
 package amo.algreal.polynomial
 
 import amo.algreal.{ GcdDomainTrait, Interval }
-import amo.algreal.Field.QuotientField
+import amo.algreal.Field.{ QuotientField, QuotientFieldOrderingExtension }
 import amo.implicits._
 
 object StrumExtension {
@@ -24,13 +24,16 @@ object StrumExtension {
     ): Int = variance(fs.map(_.signAt(q)))
 
     trait implicits {
+        this: QuotientFieldOrderingExtension.implicits =>
+
         implicit class UnipolyStrumExtension[T](unipoly: Unipoly[T])(
             implicit gcdDomainT: GcdDomainTrait[T],
             orderingT: Ordering[T]
         ) {
             implicit val nToRingT = gcdDomainT.fromInt _
-            implicit val comparableGcdDomainF = QuotientField.makeComparableQuotientField[T]
-            implicit val nToRingF = comparableGcdDomainF.fromInt _
+            implicit val gcdDomainF = QuotientField.makeQuotientField[T]
+            implicit val orderingF = implicitly[Ordering[QuotientField[T]]]
+            implicit val nToRingF = gcdDomainF.fromInt _
 
             def intervalsWithSign(
                 s: Int,
@@ -40,8 +43,8 @@ object StrumExtension {
                     (interval, false)
                 )({ case (iv, isRat) => if (isRat) (iv, isRat) else {
                     val middle = iv.middle
-                    val v = comparableGcdDomainF.timesN(unipoly.valueAt(middle), s)
-                    comparableGcdDomainF.compare(v, comparableGcdDomainF.zero) match {
+                    val v = gcdDomainF.timesN(unipoly.valueAt(middle), s)
+                    v.compare(0) match {
                         case 0 => (Interval(middle, middle), true)
                         case -1 => (Interval(middle, iv.right), false)
                         case _ => (Interval(iv.left, middle), false)
@@ -78,9 +81,9 @@ object StrumExtension {
 
             def rootBound: QuotientField[T] = unipoly.cs match {
                 case heads :+ lc => heads
-                    .map(comparableGcdDomainF.divide(_, lc))
-                    .map(comparableGcdDomainF.abs)
-                    .foldLeft(comparableGcdDomainF.zero)(comparableGcdDomainF.max) + 1
+                    .map(gcdDomainF.divide(_, lc))
+                    .map(gcdDomainF.abs)
+                    .foldLeft(gcdDomainF.zero)(orderingF.max) + 1
                 case _ => 0
             }
         }

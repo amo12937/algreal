@@ -3,7 +3,7 @@ package amo.algreal
 import scala.annotation.tailrec
 import scala.math.Ordering
 
-import amo.algreal.Field.QuotientField
+import amo.algreal.Field.{ QuotientField, QuotientFieldOrderingExtension }
 import amo.algreal.polynomial.Unipoly
 
 object BigInteger {
@@ -32,7 +32,8 @@ object BigInteger {
         }
 
     trait implicits {
-        this: Closure.implicits =>
+        this: Closure.implicits
+        with QuotientFieldOrderingExtension.implicits =>
 
         implicit val bigInt =
             new EuclideanDomainTrait[BigInt]
@@ -61,7 +62,7 @@ object BigInteger {
             }
         implicit val closureBigIntOrdering = closureOrdering[BigInt]
 
-        implicit val rational = QuotientField.makeComparableQuotientField[BigInt]
+        implicit val rational = QuotientField.makeQuotientField[BigInt]
         implicit val nToRationalFieldBigInt = rational.fromInt _
         implicit val closureRationalOrdering = closureOrdering[QuotientField[BigInt]]
 
