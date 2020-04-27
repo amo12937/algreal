@@ -12,7 +12,7 @@ object Closure {
     trait implicits {
         import scala.language.implicitConversions
 
-        def closureOrdering[T](implicit ordering: Ordering[T]) = new Ordering[Closure[T]] {
+        implicit def closureOrdering[T](implicit ordering: Ordering[T]) = new Ordering[Closure[T]] {
             def compare(x: Closure[T], y: Closure[T]): Int = (x, y) match {
                 case (NegativeInfinity, NegativeInfinity) => 0
                 case (_, NegativeInfinity) => 1

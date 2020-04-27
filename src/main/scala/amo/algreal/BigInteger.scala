@@ -62,12 +62,9 @@ object BigInteger {
                 def divMod(a: BigInt, b: BigInt) = a /% b
                 override def mod(a: BigInt, b: BigInt) = a % b
             }
-        implicit val closureBigIntOrdering = closureOrdering[BigInt]
 
         val rational = implicitly[QuotientFieldTrait[BigInt]]
         implicit val nToRationalFieldBigInt = rational.fromInt _
-        implicit val closureRationalOrdering = closureOrdering[QuotientField[BigInt]]
-
         implicit val nToU = implicitly[RingTrait[Unipoly[BigInt]]].fromInt _
     }
 }
