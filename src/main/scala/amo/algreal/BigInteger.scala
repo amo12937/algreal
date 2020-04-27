@@ -33,7 +33,8 @@ object BigInteger {
 
     trait implicits {
         this: Closure.implicits
-        with QuotientFieldOrderingExtension.implicits =>
+        with QuotientFieldOrderingExtension.implicits
+        with Unipoly.implicits =>
 
         implicit val bigInt =
             new EuclideanDomainTrait[BigInt]
@@ -66,10 +67,6 @@ object BigInteger {
         implicit val nToRationalFieldBigInt = rational.fromInt _
         implicit val closureRationalOrdering = closureOrdering[QuotientField[BigInt]]
 
-        implicit val iUnipoly = Unipoly.makeUnipoly[BigInt]
-        implicit val nToUnipolyBigInt = iUnipoly.fromInt _
-
-        implicit val i2Unipoly = Unipoly.makeUnipoly[Unipoly[BigInt]]
-        implicit val nToUnipolyBigInt2 = i2Unipoly.fromInt _
+        implicit val nToU = implicitly[RingTrait[Unipoly[BigInt]]].fromInt _
     }
 }

@@ -3,6 +3,7 @@ package amo.algreal.polynomial
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
+import amo.algreal.RingTrait
 import amo.algreal.Field.QuotientField
 import amo.implicits._
 

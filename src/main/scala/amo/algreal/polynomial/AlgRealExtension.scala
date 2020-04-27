@@ -4,7 +4,8 @@ import amo.algreal.{ AlgReal, BigInteger, GcdDomainTrait, Resultant }
 
 object AlgRealExtension {
     trait implicits {
-        this: BigInteger.implicits =>
+        this: BigInteger.implicits
+        with Unipoly.implicits =>
         implicit lazy val mulPolyUniPolyBigInt: GcdDomainTrait[MulPoly[Unipoly[BigInt]]] =
             MulPoly.makeMulPoly[Unipoly[BigInt]]
         lazy val resultantMulPoly = new Resultant[MulPoly[Unipoly[BigInt]]]

@@ -17,7 +17,7 @@ class BigPrimeSpec extends AnyWordSpec with Matchers {
         }
 
         "return 0 if supplied Unipoly.zero" in {
-            BigPrime.oneNorm(iUnipoly.zero) should be(0)
+            BigPrime.oneNorm(0) should be(0)
         }
     }
 
