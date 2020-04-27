@@ -348,5 +348,9 @@ object Unipoly {
         implicit def tToUnipoly[T](t: T)(
             implicit gcdDomainT: GcdDomainTrait[T]
         ): Unipoly[T] = Unipoly(t)
+
+        implicit def autoMakeUnipoly[T](
+            implicit gcdDomainT: GcdDomainTrait[T]
+        ): EuclideanDomainTrait[Unipoly[T]] = makeUnipoly
     }
 }
