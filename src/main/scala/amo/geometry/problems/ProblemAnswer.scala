@@ -8,7 +8,7 @@ trait ProblemAnswer[T] {
 }
 
 class FullFillEnvironmentAnswer[T](
-    answerEnvironment: ProblemEnvironment[T]
+    val answerEnvironment: ProblemEnvironment[T]
 ) extends ProblemAnswer[T] {
     val costL = answerEnvironment.costL
     val costE = answerEnvironment.costE

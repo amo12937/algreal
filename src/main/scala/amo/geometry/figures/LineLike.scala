@@ -17,7 +17,20 @@ trait LineLike[T] extends Figure2D[T] {
 
     val interval: Interval[Closure[T]]
 
-    lazy val f = a * x + b * y + c
+    lazy val f = {
+        val (_a, _b, _c) = {
+            if (!constructible.equiv(a, constructible.zero)) (
+                constructible.one,
+                constructible.divide(b, a),
+                constructible.divide(c, a)
+            ) else (
+                constructible.divide(a, b),
+                constructible.one,
+                constructible.divide(c, b)
+            )
+        }
+        _a * x + _b * y + _c
+    }
 
     def definingBinomial: Binomial[T] = f
 

@@ -17,7 +17,8 @@ case class GetLineCommand[T](
     def run(problemEnvironment: ProblemEnvironment[T]): ProblemEnvironment[T] =
         problemEnvironment
             .addCommand(this)
-            .addLine(costL, costE, Line(p1, p2))
+            .addLine(Line(p1, p2))
+            .addCost(costL, costE)
 }
 
 case class GetLineCommandProvider[T]()(

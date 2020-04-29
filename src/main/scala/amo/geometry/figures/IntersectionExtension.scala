@@ -8,7 +8,8 @@ trait IntersectionSolver[T, Fig1[_], Fig2[_]] {   // T, Fig1, Fig2 を与えて�
     def intersects(f1: Fig1[T], f2: Fig2[T])(
         implicit ef1: Fig1[T] <:< Figure2D[T],  // Fig1[T] が Figure2D[T] の子クラス
         ef2: Fig2[T] <:< Figure2D[T],           // Fig2[T] が Figure2D[T] の子クラスだった場合に定義される
-        constructible: ConstructibleTrait[T] with Ordering[T]
+        constructible: ConstructibleTrait[T],
+        ordering: Ordering[T]
     ): Iterator[Point[T]]
 }
 
@@ -19,7 +20,8 @@ object IntersectionExtension {
         ) {
             def intersects[Fig2[_], Field[_]](f2: Fig2[T])(
                 implicit ef2: Fig2[T] <:< Figure2D[T],
-                constructible: ConstructibleTrait[T] with Ordering[T],
+                constructible: ConstructibleTrait[T],
+                ordering: Ordering[T],
                 solver: IntersectionSolver[T, Fig1, Fig2]
             ): Iterator[Point[T]] = solver.intersects(f1, f2)
         }
@@ -28,7 +30,8 @@ object IntersectionExtension {
             def intersects(f1: LineLike[T], f2: LineLike[T])(
                 implicit ef1: LineLike[T] <:< Figure2D[T],
                 ef2: LineLike[T] <:< Figure2D[T],
-                constructible: ConstructibleTrait[T] with Ordering[T]
+                constructible: ConstructibleTrait[T],
+                ordering: Ordering[T]
             ): Iterator[Point[T]] =
                 if (
                     constructible.equiv(f1.a, f2.a) &&
@@ -53,7 +56,8 @@ object IntersectionExtension {
             def intersects(f1: LineLike[T], f2: Circle[T])(
                 implicit ef1: LineLike[T] <:< Figure2D[T],
                 ef2: Circle[T] <:< Figure2D[T],
-                constructible: ConstructibleTrait[T] with Ordering[T]
+                constructible: ConstructibleTrait[T],
+                ordering: Ordering[T]
             ) = (
                 if (constructible.equiv(f1.b, constructible.zero)) {
                     val x = constructible.divide(constructible.negate(f1.c), f1.a)
@@ -108,8 +112,9 @@ object IntersectionExtension {
             def intersects(f1: Circle[T], f2: LineLike[T])(
                 implicit ef1: Circle[T] <:< Figure2D[T],
                 ef2: LineLike[T] <:< Figure2D[T],
-                constructible: ConstructibleTrait[T] with Ordering[T]
-            ) = LineCircleSolver.intersects(f2, f1)(ef2, ef1, constructible)
+                constructible: ConstructibleTrait[T],
+                ordering: Ordering[T]
+            ) = LineCircleSolver.intersects(f2, f1)(ef2, ef1, constructible, ordering)
         }
 
         implicit def twoCircleSolver[T] = new IntersectionSolver[
@@ -118,14 +123,15 @@ object IntersectionExtension {
             def intersects(f1: Circle[T], f2: Circle[T])(
                 implicit ef1: Circle[T] <:< Figure2D[T],
                 ef2: Circle[T] <:< Figure2D[T],
-                constructible: ConstructibleTrait[T] with Ordering[T]
+                constructible: ConstructibleTrait[T],
+                ordering: Ordering[T]
             ) = {
                 val d = f1.p.dist(f2.p)
-                val maxR = constructible.max(f1.r, f2.r)
-                val minR = constructible.min(f1.r, f2.r)
+                val maxR = ordering.max(f1.r, f2.r)
+                val minR = ordering.min(f1.r, f2.r)
                 val lb = constructible.sub(maxR, minR)
                 val ub = constructible.add(maxR, minR)
-                if (constructible.lt(d, lb) || constructible.lt(ub, d)) Iterator.empty
+                if (ordering.lt(d, lb) || ordering.lt(ub, d)) Iterator.empty
                 else if (constructible.equiv(d, lb)) Iterator(
                     (f1.p.scalar(f2.r) - f2.p.scalar(f1.r)).scalarDiv(constructible.sub(f2.r, f1.r))
                 )
@@ -152,7 +158,8 @@ object IntersectionExtension {
                     LineCircleSolver.intersects(Line(a, b, c), f1)(
                         implicitly[LineLike[T] <:< Figure2D[T]],
                         ef1,
-                        constructible
+                        constructible,
+                        ordering
                     )
                 }
             }

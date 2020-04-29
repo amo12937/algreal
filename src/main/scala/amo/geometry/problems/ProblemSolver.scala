@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 
 import amo.geometry.commands.Command
 
-trait ProblemSolver[T] {
+class ProblemSolver[T] {
     def solve(problem: Problem[T]): Vector[Command[T]] = {
         val env = problem.initialProblemEnvironment
         val queue = nextCommands(problem, env)
@@ -15,12 +15,10 @@ trait ProblemSolver[T] {
     final def recursiveSolve(
         problem: Problem[T],
         queue: Iterator[(ProblemEnvironment[T], Command[T])]
-    ): Vector[Command[T]] = if (queue.hasNext) Vector.empty else {
+    ): Vector[Command[T]] = if (!queue.hasNext) Vector.empty else {
         val (prevProblemEnvironment, command) = queue.next
         val problemEnvironment = command.run(prevProblemEnvironment)
-        if (problem.isSolved(problemEnvironment)) {
-            problemEnvironment.commands
-        }
+        if (problem.isSolved(problemEnvironment)) problemEnvironment.commands
         else {
             val nextQueue =
                 if (
