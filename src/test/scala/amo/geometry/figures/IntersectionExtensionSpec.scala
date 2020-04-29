@@ -9,8 +9,8 @@ import amo.implicits._
 class TwoLineSolverSpec extends AnyWordSpec with Matchers {
     "TwoLineSolver" should {
         "return a point if there's intersecion" in {
-            val l1: Line[AlgReal] = Line(Point(0, 0), Point(2, 4))
-            val l2: Line[AlgReal] = Line(Point(0, 2), Point(1, 0))
+            val l1: LineLike[AlgReal] = Line(Point(0, 0), Point(2, 4))
+            val l2: LineLike[AlgReal] = Line(Point(0, 2), Point(1, 0))
             val actual = l1.intersects(l2).toVector
 
             val expected = Vector[Point[AlgReal]](Point(AlgReal(1, 2), 1))
@@ -20,7 +20,7 @@ class TwoLineSolverSpec extends AnyWordSpec with Matchers {
 
     "LineCircleSolver" should {
         "return intersect points when the line is parallel to y axis" in {
-            val l: Line[AlgReal] = Line(Point(0, 0), Point(0, 1))
+            val l: LineLike[AlgReal] = Line(Point(0, 0), Point(0, 1))
             val c: Circle[AlgReal] = Circle(Point(1, 0), 2)
             val actual = l.intersects(c).toSet
 
@@ -32,7 +32,7 @@ class TwoLineSolverSpec extends AnyWordSpec with Matchers {
         }
 
         "return intersect points when the line is parallel to x axis" in {
-            val l: Line[AlgReal] = Line(Point(0, 2), Point(2, 0))
+            val l: LineLike[AlgReal] = Line(Point(0, 2), Point(2, 0))
             val c: Circle[AlgReal] = Circle(Point(0, 0), AlgReal(2).sqrt)
             val actual = l.intersects(c).toSet
 
@@ -43,7 +43,7 @@ class TwoLineSolverSpec extends AnyWordSpec with Matchers {
         }
 
         "return empty points when the line did not cross to the circle" in {
-            val l: Line[AlgReal] = Line(Point(0, 2), Point(2, 0))
+            val l: LineLike[AlgReal] = Line(Point(0, 2), Point(2, 0))
             val c: Circle[AlgReal] = Circle(Point(0, 0), 1)
             val actual = l.intersects(c).toSet
 
@@ -55,7 +55,7 @@ class TwoLineSolverSpec extends AnyWordSpec with Matchers {
     "CircleLineSolver" should {
         "return a point if there's intersecion" in {
             val c: Circle[AlgReal] = Circle(Point(1, 0), 2)
-            val l: Line[AlgReal] = Line(Point(0, 0), Point(0, 1))
+            val l: LineLike[AlgReal] = Line(Point(0, 0), Point(0, 1))
             val actual = c.intersects(l).toSet
 
             val expected = Set[Point[AlgReal]](

@@ -24,10 +24,10 @@ object IntersectionExtension {
             ): Iterator[Point[T]] = solver.intersects(f1, f2)
         }
 
-        implicit def twoLineSolver[T] = new IntersectionSolver[T, Line, Line] {
-            def intersects(f1: Line[T], f2: Line[T])(
-                implicit ef1: Line[T] <:< Figure2D[T],
-                ef2: Line[T] <:< Figure2D[T],
+        implicit def twoLineSolver[T] = new IntersectionSolver[T, LineLike, LineLike] {
+            def intersects(f1: LineLike[T], f2: LineLike[T])(
+                implicit ef1: LineLike[T] <:< Figure2D[T],
+                ef2: LineLike[T] <:< Figure2D[T],
                 constructible: ConstructibleTrait[T] with Ordering[T]
             ): Iterator[Point[T]] =
                 if (
@@ -45,10 +45,10 @@ object IntersectionExtension {
         }
 
         implicit def LineCircleSolver[T] = new IntersectionSolver[
-            T, Line, Circle
+            T, LineLike, Circle
         ] {
-            def intersects(f1: Line[T], f2: Circle[T])(
-                implicit ef1: Line[T] <:< Figure2D[T],
+            def intersects(f1: LineLike[T], f2: Circle[T])(
+                implicit ef1: LineLike[T] <:< Figure2D[T],
                 ef2: Circle[T] <:< Figure2D[T],
                 constructible: ConstructibleTrait[T] with Ordering[T]
             ) = if (constructible.equiv(f1.b, constructible.zero)) {
@@ -98,11 +98,11 @@ object IntersectionExtension {
         }
 
         implicit def CircleLineSolver[T] = new IntersectionSolver[
-            T, Circle, Line
+            T, Circle, LineLike
         ] {
-            def intersects(f1: Circle[T], f2: Line[T])(
+            def intersects(f1: Circle[T], f2: LineLike[T])(
                 implicit ef1: Circle[T] <:< Figure2D[T],
-                ef2: Line[T] <:< Figure2D[T],
+                ef2: LineLike[T] <:< Figure2D[T],
                 constructible: ConstructibleTrait[T] with Ordering[T]
             ) = LineCircleSolver.intersects(f2, f1)(ef2, ef1, constructible)
         }
@@ -145,7 +145,7 @@ object IntersectionExtension {
                         )
                     )
                     LineCircleSolver.intersects(Line(a, b, c), f1)(
-                        implicitly[Line[T] <:< Figure2D[T]],
+                        implicitly[LineLike[T] <:< Figure2D[T]],
                         ef1,
                         constructible
                     )
