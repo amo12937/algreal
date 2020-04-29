@@ -1,7 +1,7 @@
 package amo.geometry.problems
 
 import amo.geometry.commands.Command
-import amo.geometry.figures.{ LineLike, Point }
+import amo.geometry.figures.{ Circle, LineLike, Point }
 
 trait ProblemEnvironment[T] {
     val costL: Int
@@ -9,6 +9,7 @@ trait ProblemEnvironment[T] {
 
     val points: Set[Point[T]]
     val lines: Set[LineLike[T]]
+    val circles: Set[Circle[T]]
     def commands: Vector[Command[T]]
 
     def addCommand(command: Command[T]): ProblemEnvironment[T]
