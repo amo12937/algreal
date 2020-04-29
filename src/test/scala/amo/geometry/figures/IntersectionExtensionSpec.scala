@@ -16,6 +16,15 @@ class TwoLineSolverSpec extends AnyWordSpec with Matchers {
             val expected = Vector[Point[AlgReal]](Point(AlgReal(1, 2), 1))
             actual should be(expected)
         }
+
+        "return empty if line segment does not intersect" in {
+            val l1: LineLike[AlgReal] = LineSegment(Point(1, 0), Point(2, 4))
+            val l2: LineLike[AlgReal] = LineSegment(Point(0, 1), Point(1, -1))
+
+            val actual = l1.intersects(l2).toVector
+            val expected = Vector[Point[AlgReal]]()
+            actual should be(expected)
+        }
     }
 
     "LineCircleSolver" should {
@@ -45,6 +54,16 @@ class TwoLineSolverSpec extends AnyWordSpec with Matchers {
         "return empty points when the line did not cross to the circle" in {
             val l: LineLike[AlgReal] = Line(Point(0, 2), Point(2, 0))
             val c: Circle[AlgReal] = Circle(Point(0, 0), 1)
+            val actual = l.intersects(c).toSet
+
+            val expected = Set[Point[AlgReal]]()
+            actual should be(expected)
+        }
+
+        "return empty when the line segment does not cross to the circle" in {
+            val c: Circle[AlgReal] = Circle(Point(0, 0), 1)
+            val l: LineLike[AlgReal] = LineSegment(Point(4, 0), Point(2, 0))
+
             val actual = l.intersects(c).toSet
 
             val expected = Set[Point[AlgReal]]()

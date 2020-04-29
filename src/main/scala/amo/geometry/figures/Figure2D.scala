@@ -1,16 +1,16 @@
 package amo.geometry.figures
 
-import amo.algreal.GcdDomainTrait
+import amo.algreal.Field.ConstructibleTrait
 
 trait Figure2D[T] extends Equals {
-    implicit val gcdDomainT: GcdDomainTrait[T]
+    implicit val constructible: ConstructibleTrait[T]
 
     def definingBinomial: Binomial[T]
 
     def contains(p: Point[T]): Boolean =
-        gcdDomainT.equiv(
+        constructible.equiv(
             definingBinomial.valueAt(p),
-            gcdDomainT.zero
+            constructible.zero
         )
 
     def canEqual(rhs: Any): Boolean = rhs.isInstanceOf[Figure2D[T]]

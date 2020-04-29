@@ -40,7 +40,10 @@ object IntersectionExtension {
                     Iterator(Point(
                         constructible.divide(b.det(c), a.det(b)),
                         constructible.divide(c.det(a), a.det(b))
-                    ))
+                    )).filter(p =>
+                        f1.innerProductIsInInterval(p) &&
+                        f2.innerProductIsInInterval(p)
+                    )
                 }
         }
 
@@ -51,50 +54,52 @@ object IntersectionExtension {
                 implicit ef1: LineLike[T] <:< Figure2D[T],
                 ef2: Circle[T] <:< Figure2D[T],
                 constructible: ConstructibleTrait[T] with Ordering[T]
-            ) = if (constructible.equiv(f1.b, constructible.zero)) {
-                val x = constructible.divide(constructible.negate(f1.c), f1.a)
-                constructible.realRoots(
-                    constructible.one,
-                    constructible.zero,
-                    constructible.sub(
-                        constructible.pow(constructible.sub(x, f2.p.x), 2),
-                        constructible.pow(f2.r, 2)
-                    ) // y^2 + (x - f2.p.x)^2 - (f2.r)^2 = 0
-                ).map(y => Point(x, constructible.add(y, f2.p.y)))
-            } else {
-                /*
-                 * aX + bY + c = 0
-                 * (X-d)^2 + (Y-e)^2 = f^2
-                 *
-                 * S = X - d
-                 * T = Y - e
-                 * C = ad + be + c
-                 */
-                val C = constructible.add(constructible.add(
-                    constructible.times(f1.a, f2.p.x),
-                    constructible.times(f1.b, f2.p.y)
-                ), f1.c)
+            ) = (
+                if (constructible.equiv(f1.b, constructible.zero)) {
+                    val x = constructible.divide(constructible.negate(f1.c), f1.a)
+                    constructible.realRoots(
+                        constructible.one,
+                        constructible.zero,
+                        constructible.sub(
+                            constructible.pow(constructible.sub(x, f2.p.x), 2),
+                            constructible.pow(f2.r, 2)
+                        ) // y^2 + (x - f2.p.x)^2 - (f2.r)^2 = 0
+                    ).map(y => Point(x, constructible.add(y, f2.p.y)))
+                } else {
+                    /*
+                     * aX + bY + c = 0
+                     * (X-d)^2 + (Y-e)^2 = f^2
+                     *
+                     * S = X - d
+                     * T = Y - e
+                     * C = ad + be + c
+                     */
+                    val C = constructible.add(constructible.add(
+                        constructible.times(f1.a, f2.p.x),
+                        constructible.times(f1.b, f2.p.y)
+                    ), f1.c)
 
-                /*
-                 * aS + bT + C = 0
-                 * S^2 + T^2 = f^2
-                 * b^2S^2 + b^2T^2 = b^2f^2
-                 *
-                 * b^2S^2 + (aS + C)^2 = b^2f^2
-                 * (a^2 + b^2)S^2 + 2aCS + C^2 - b^2f^2 = 0
-                 *
-                 */
-                val a = constructible.add(constructible.pow(f1.a, 2), constructible.pow(f1.b, 2))
-                val b = constructible.timesN(constructible.times(f1.a, C), 2)
-                val c = constructible.sub(
-                    constructible.pow(C, 2),
-                    constructible.pow(constructible.times(f1.b, f2.r), 2)
-                )
-                constructible.realRoots(a, b, c).map(S => {
-                    val T = constructible.divide(constructible.negate(constructible.add(constructible.times(f1.a, S), C)), f1.b)
-                    Point(constructible.add(S, f2.p.x), constructible.add(T, f2.p.y))
-                })
-            }
+                    /*
+                     * aS + bT + C = 0
+                     * S^2 + T^2 = f^2
+                     * b^2S^2 + b^2T^2 = b^2f^2
+                     *
+                     * b^2S^2 + (aS + C)^2 = b^2f^2
+                     * (a^2 + b^2)S^2 + 2aCS + C^2 - b^2f^2 = 0
+                     *
+                     */
+                    val a = constructible.add(constructible.pow(f1.a, 2), constructible.pow(f1.b, 2))
+                    val b = constructible.timesN(constructible.times(f1.a, C), 2)
+                    val c = constructible.sub(
+                        constructible.pow(C, 2),
+                        constructible.pow(constructible.times(f1.b, f2.r), 2)
+                    )
+                    constructible.realRoots(a, b, c).map(S => {
+                        val T = constructible.divide(constructible.negate(constructible.add(constructible.times(f1.a, S), C)), f1.b)
+                        Point(constructible.add(S, f2.p.x), constructible.add(T, f2.p.y))
+                    })
+                }
+            ).filter(p => f1.innerProductIsInInterval(p))
         }
 
         implicit def CircleLineSolver[T] = new IntersectionSolver[
