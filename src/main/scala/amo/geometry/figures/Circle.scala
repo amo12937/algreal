@@ -3,9 +3,9 @@ package amo.geometry.figures
 import amo.algreal.GcdDomainTrait
 import Binomial._
 
-class Circle[T](
-    p: Point[T],
-    r: T
+case class Circle[T](
+    val p: Point[T],
+    val r: T
 )(
     implicit val gcdDomainT: GcdDomainTrait[T]
 ) extends Figure2D[T] {

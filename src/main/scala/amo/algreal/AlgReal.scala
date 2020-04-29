@@ -3,7 +3,7 @@ package amo.algreal
 import scala.util.{ Random => ScalaRandom }
 
 import amo.algreal.factors.Hensel
-import amo.algreal.Field.{ FieldTrait, QuotientField, QuotientFieldOrderingExtension }
+import amo.algreal.Field.{ AlgebraicClosureTrait, QuotientField, QuotientFieldOrderingExtension }
 import amo.algreal.polynomial.{ AlgRealExtension, StrumExtension, Unipoly }
 import amo.util.Random
 
@@ -56,8 +56,11 @@ object AlgReal {
     val hensel: Hensel = new Hensel(r.nextBigInt(_))
     val resultantPoly = new Resultant[Unipoly[BigInt]]
 
+    def apply(n: BigInt): AlgReal = Rat(QuotientField(n))
+    def apply(num: BigInt, denom: BigInt): AlgReal = Rat(QuotientField(num, denom))
+
     implicit lazy val algRealField =
-        new FieldTrait[AlgReal]
+        new AlgebraicClosureTrait[AlgReal]
         with Ordering[AlgReal] {
             def compare(x: AlgReal, y: AlgReal) = x compare y
 
@@ -71,6 +74,8 @@ object AlgReal {
             def pow(a: AlgReal, n: Int) = a.pow(n)
 
             def divide(a: AlgReal, b: AlgReal) = a / b
+
+            def nthRoot(a: AlgReal, n: Int) = a.nthRoot(n)
         }
 
     lazy val algRealQuotientField = QuotientField.makeQuotientField[AlgReal]
