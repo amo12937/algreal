@@ -17,20 +17,7 @@ trait LineLike[T] extends Figure2D[T] {
 
     val interval: Interval[Closure[T]]
 
-    lazy val f = {
-        val (_a, _b, _c) = {
-            if (!constructible.equiv(a, constructible.zero)) (
-                constructible.one,
-                constructible.divide(b, a),
-                constructible.divide(c, a)
-            ) else (
-                constructible.divide(a, b),
-                constructible.one,
-                constructible.divide(c, b)
-            )
-        }
-        _a * x + _b * y + _c
-    }
+    lazy val f = a * x + b * y + c
 
     def definingBinomial: Binomial[T] = f
 
@@ -50,6 +37,19 @@ trait LineLike[T] extends Figure2D[T] {
 }
 
 object LineLike {
+    def normalize[T](a: T, b: T, c: T)(
+        implicit constructible: ConstructibleTrait[T]
+    ): (T, T, T) = 
+        if (!constructible.equiv(a, constructible.zero)) (
+            constructible.one,
+            constructible.divide(b, a),
+            constructible.divide(c, a)
+        ) else if (!constructible.equiv(b, constructible.zero)) (
+            constructible.divide(a, b),
+            constructible.one,
+            constructible.divide(c, b)
+        ) else throw new ArithmeticException(s"ilegal line ($a, $b, $c)")
+
     def abcToPoints[T](a: T, b: T, c: T)(
         implicit constructible: ConstructibleTrait[T]
     ): (Point[T], Point[T]) = 
@@ -75,16 +75,14 @@ object LineLike {
             constructible.times(a, p1.x),
             constructible.times(b, p1.y)
         ))
-        (a, b, c)
+        normalize(a, b, c)
     }
 
     def apply[T](_a: T, _b: T, _c:T, _interval: Interval[Closure[T]])(
         implicit _constructible: ConstructibleTrait[T]
     ): LineLike[T] = new LineLike[T] {
         val constructible = _constructible
-        val a = _a
-        val b = _b
-        val c = _c
+        val (a, b, c) = normalize(_a, _b, _c)
         val (p1, p2) = abcToPoints(a, b, c)
         val interval = _interval
     }

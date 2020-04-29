@@ -80,6 +80,7 @@ object AlgReal {
 
     lazy val algRealQuotientField = QuotientField.makeQuotientField[AlgReal]
 
+    val orderingQ = implicitly[Ordering[QuotientField[BigInt]]]
     case class Rat(val r: QuotientField[BigInt]) extends AlgReal {
         val f = Unipoly(-r.num, r.denom)
         val i = Interval(r - 1, r + 1)
@@ -129,7 +130,7 @@ object AlgReal {
             lazy val x = Unipoly.ind[BigInt]
             if (n == 0) throw new ArithmeticException("0th root")
             else if (n < 0) inverse.nthRoot(-n)
-            else if (r == 0) Rat(0)
+            else if (orderingQ.equiv(r, 0)) Rat(0)
             else if (r > 0) realRoots(
                 r.denom * (x^n) - r.num, Closure(0), Closure.PositiveInfinity
             ).toVector match {
@@ -146,7 +147,6 @@ object AlgReal {
         }
     }
 
-    val orderingQ = implicitly[Ordering[QuotientField[BigInt]]]
     case class AlgRealPoly(
         val f: Unipoly[BigInt],
         val s: Int,

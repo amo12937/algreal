@@ -32,6 +32,9 @@ case class GetVerticalBisectorCommandProvider[T]()(
 ) extends CommandProvider[T] {
     def provideCommands(problemEnvironment: ProblemEnvironment[T]): Iterator[Command[T]] =
         problemEnvironment.points.toVector.combinations(2).map {
-            case Seq(p1, p2) => GetVerticalBisectorCommand(p1, p2)
+            case Seq(p1, p2) => {
+                if (p1 == p2) throw new RuntimeException(s"$p1, $p2, ${problemEnvironment.commands}")
+                GetVerticalBisectorCommand(p1, p2)
+            }
         }
 }

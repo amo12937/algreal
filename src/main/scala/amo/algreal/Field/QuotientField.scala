@@ -4,7 +4,7 @@ import java.lang.ArithmeticException
 
 import amo.algreal.{ EqTrait, GcdDomainTrait, RingTrait }
 
-class QuotientField[T](val num: T, val denom: T)(
+case class QuotientField[T](num: T, denom: T)(
     implicit gcdDomainT: GcdDomainTrait[T]
 ) extends Equals {
     implicit val nToRingT = gcdDomainT.fromInt _

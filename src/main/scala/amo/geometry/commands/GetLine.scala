@@ -27,7 +27,10 @@ case class GetLineCommandProvider[T]()(
 ) extends CommandProvider[T] {
     def provideCommands(problemEnvironment: ProblemEnvironment[T]): Iterator[Command[T]] =
         problemEnvironment.points.toVector.combinations(2).map {
-            case Seq(p1, p2) => GetLineCommand(p1, p2)
+            case Seq(p1, p2) => {
+                if (p1 == p2) throw new RuntimeException(s"$p1, $p2, ${problemEnvironment.commands}")
+                GetLineCommand(p1, p2)
+            }
         }
 }
 
