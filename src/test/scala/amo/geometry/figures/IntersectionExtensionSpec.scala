@@ -65,4 +65,29 @@ class TwoLineSolverSpec extends AnyWordSpec with Matchers {
             actual should be(expected)
         }
     }
+
+    "twoCircleSolver" should {
+        "construct a perpendicular line from a given point to a given line" in {
+            val p = Point(AlgReal(1), AlgReal(2))   // 点 p(1, 2)
+            val p1 = Point(AlgReal(5), AlgReal(0))
+            val p2 = Point(AlgReal(0), AlgReal(-2))
+            val l = Line(p1, p2)                    // 点(5, 0), (0, -2) を通る線
+
+            val c = Circle(p, AlgReal(7))           // 中心点p, 半径7 の円
+
+            val cs = c.intersects(l).map(Circle(_, AlgReal(8))).toVector
+                                                    // 円c と 直線l の各交点 を中心とする半径 8 の円
+            cs.length should be(2)
+            val c0 = cs(0)
+            val c1 = cs(1)
+
+            val ps = c0.intersects(c1).toVector     // c0, c1 の交点
+            ps.length should be(2)
+            val p3 = ps(0)
+            val p4 = ps(1)
+
+            (p2 - p1).innerProduct(p4 - p3) should be(AlgReal(0))
+                                                    // 直線l と p3, p4 を結んだ線は垂直になっている
+        }
+    }
 }

@@ -81,6 +81,7 @@ object IntersectionExtension {
                  * b^2S^2 + b^2T^2 = b^2f^2
                  *
                  * b^2S^2 + (aS + C)^2 = b^2f^2
+                 * (a^2 + b^2)S^2 + 2aCS + C^2 - b^2f^2 = 0
                  *
                  */
                 val a = constructible.add(constructible.pow(f1.a, 2), constructible.pow(f1.b, 2))

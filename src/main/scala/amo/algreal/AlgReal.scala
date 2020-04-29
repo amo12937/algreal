@@ -116,11 +116,14 @@ object AlgReal {
 
         def inverse = Rat(r.inverse)
 
-        def pow(n: BigInt) = if (n < Int.MaxValue) Rat(r.pow(n.intValue)) else {
-            val (q, r) = n /% 2
-            val x = pow(q)
-            if (r == 1) x * x * this else x * x
-        }
+        def pow(n: BigInt) =
+            if (n < 0) pow(-n).inverse
+            else if (n < Int.MaxValue) Rat(r.pow(n.intValue))
+            else {
+                val (q, r) = n /% 2
+                val x = pow(q)
+                if (r == 1) x * x * this else x * x
+            }
 
         def nthRoot(n: Int) = {
             lazy val x = Unipoly.ind[BigInt]
@@ -139,7 +142,7 @@ object AlgReal {
                 case Vector(res) => res
                 case l => throw new RuntimeException(s"none or multiple roots $l")
             }
-            else throw new RuntimeException("root negative")
+            else throw new RuntimeException(s"root negative ${(n, this)}")
         }
     }
 
@@ -220,8 +223,7 @@ object AlgReal {
             else {
                 val fq = f.mapCoeff(QuotientField(_))
                 val g = qUnipoly.powMod(Unipoly.ind, n, fq)
-                val k = Rat(fq.leadingCoefficient).pow(n - f.degreeInt + 1)
-                g.mapCoeff[AlgReal](c => Rat(c) / k).valueAt(this)
+                g.mapCoeff[AlgReal](Rat(_)).valueAt(this)
             }
 
         def nthRoot(n: Int) = {
