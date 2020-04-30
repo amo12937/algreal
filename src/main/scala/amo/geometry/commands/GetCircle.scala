@@ -2,7 +2,7 @@ package amo.geometry.commands
 
 import amo.algreal.Field.ConstructibleTrait
 import amo.geometry.figures.{ Circle, Point }
-import amo.geometry.problems.ProblemEnvironment
+import amo.geometry.problems.{ Cost, ProblemEnvironment }
 
 case class GetCircleCommand[T](
     val p1: Point[T],
@@ -11,14 +11,10 @@ case class GetCircleCommand[T](
     implicit constructible: ConstructibleTrait[T],
     ordering: Ordering[T]
 ) extends Command[T] {
-    val costL = 1
-    val costE = 1
+    val cost = Cost(1, 1)
 
     def run(problemEnvironment: ProblemEnvironment[T]): ProblemEnvironment[T] =
-        problemEnvironment
-            .addCommand(this)
-            .addCircle(Circle(p1, p1.dist(p2)))
-            .addCost(costL, costE)
+        problemEnvironment.addCircle(Circle(p1, p1.dist(p2)))
 }
 
 case class GetCircleCommandProvider[T]()(

@@ -2,7 +2,7 @@ package amo.geometry.commands
 
 import amo.algreal.Field.ConstructibleTrait
 import amo.geometry.figures.{ Circle, LineLike, Point }
-import amo.geometry.problems.ProblemEnvironment
+import amo.geometry.problems.{ Cost, ProblemEnvironment }
 
 import amo.implicits._
 
@@ -13,8 +13,7 @@ case class GetPointCommand[T](
     implicit constructible: ConstructibleTrait[T],
     ordering: Ordering[T]
 ) extends Command[T] {
-    val costL = 0
-    val costE = 0
+    val cost = Cost(0, 0)
 
     def run(problemEnvironment: ProblemEnvironment[T]): ProblemEnvironment[T] = {
         val ps = lines.toVector.combinations(2).flatMap({
@@ -27,10 +26,7 @@ case class GetPointCommand[T](
             p <- l.intersects(c)
         } yield p)
 
-        problemEnvironment
-            .addCommand(this)
-            .addPoints(ps.toSet)
-            .addCost(costL, costE)
+        problemEnvironment.addPoints(ps.toSet)
     }
 }
 

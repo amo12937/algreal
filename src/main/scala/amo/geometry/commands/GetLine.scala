@@ -2,7 +2,7 @@ package amo.geometry.commands
 
 import amo.algreal.Field.ConstructibleTrait
 import amo.geometry.figures.{ Point, Line }
-import amo.geometry.problems.ProblemEnvironment
+import amo.geometry.problems.{ Cost, ProblemEnvironment }
 
 case class GetLineCommand[T](
     val p1: Point[T],
@@ -11,14 +11,10 @@ case class GetLineCommand[T](
     implicit constructible: ConstructibleTrait[T],
     ordering: Ordering[T]
 ) extends Command[T] {
-    val costL = 1
-    val costE = 1
+    val cost = Cost(1, 1)
 
     def run(problemEnvironment: ProblemEnvironment[T]): ProblemEnvironment[T] =
-        problemEnvironment
-            .addCommand(this)
-            .addLine(Line(p1, p2))
-            .addCost(costL, costE)
+        problemEnvironment.addLine(Line(p1, p2))
 }
 
 case class GetLineCommandProvider[T]()(
@@ -27,10 +23,7 @@ case class GetLineCommandProvider[T]()(
 ) extends CommandProvider[T] {
     def provideCommands(problemEnvironment: ProblemEnvironment[T]): Iterator[Command[T]] =
         problemEnvironment.points.toVector.combinations(2).map {
-            case Seq(p1, p2) => {
-                if (p1 == p2) throw new RuntimeException(s"$p1, $p2, ${problemEnvironment.commands}")
-                GetLineCommand(p1, p2)
-            }
+            case Seq(p1, p2) => GetLineCommand(p1, p2)
         }
 }
 

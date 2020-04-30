@@ -1,18 +1,15 @@
 package amo.geometry.problems
 
 trait ProblemAnswer[T] {
-    val costL: Int
-    val costE: Int
+    val cost: Cost
 
     def fulfill(problemEnvironment: ProblemEnvironment[T]): Boolean
 }
 
 class FullFillEnvironmentAnswer[T](
+    val cost: Cost,
     val answerEnvironment: ProblemEnvironment[T]
 ) extends ProblemAnswer[T] {
-    val costL = answerEnvironment.costL
-    val costE = answerEnvironment.costE
-
     def fulfill(problemEnvironment: ProblemEnvironment[T]): Boolean =
         answerEnvironment.points.subsetOf(problemEnvironment.points) &&
         answerEnvironment.lines.subsetOf(problemEnvironment.lines) &&

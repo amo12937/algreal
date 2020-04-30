@@ -7,24 +7,28 @@ import amo.geometry.commands.Command
 class ProblemSolver[T] {
     def solve(problem: Problem[T]): Vector[Command[T]] = {
         val env = problem.initialProblemEnvironment
-        val queue = nextCommands(problem, env)
+        val queue = nextCommands(problem, env).map[
+            (Command[T], ProblemEnvironment[T], Vector[Command[T]], Cost)
+        ]((_, env, Vector(), Cost(0, 0)))
         recursiveSolve(problem, queue)
     }
 
     @tailrec
     final def recursiveSolve(
         problem: Problem[T],
-        queue: Iterator[(ProblemEnvironment[T], Command[T])]
+        queue: Iterator[(Command[T], ProblemEnvironment[T], Vector[Command[T]], Cost)]
     ): Vector[Command[T]] = if (!queue.hasNext) Vector.empty else {
-        val (prevProblemEnvironment, command) = queue.next
+        val (command, prevProblemEnvironment, prevCommands, prevCost) = queue.next
         val problemEnvironment = command.run(prevProblemEnvironment)
-        if (problem.isSolved(problemEnvironment)) problemEnvironment.commands
+        val commands = prevCommands :+ command
+        val cost = prevCost + command.cost
+        if (problem.isSolved(cost, problemEnvironment)) commands
         else {
             val nextQueue =
-                if (
-                    problem.isOverCost(problemEnvironment)
-                ) Iterator.empty
-                else nextCommands(problem, problemEnvironment)
+                if (problem.isOverCost(cost)) Iterator.empty
+                else nextCommands(problem, problemEnvironment).map[
+                    (Command[T], ProblemEnvironment[T], Vector[Command[T]], Cost)
+                ]((_, problemEnvironment, commands, cost))
             recursiveSolve(problem, queue ++ nextQueue)
         }
     }
@@ -32,8 +36,8 @@ class ProblemSolver[T] {
     def nextCommands(
         problem: Problem[T],
         problemEnvironment: ProblemEnvironment[T]
-    ): Iterator[(ProblemEnvironment[T], Command[T])] = for {
+    ): Iterator[Command[T]] = for {
         commandProvider <- problem.availableCommandProviders
         command <- commandProvider.provideCommands(problemEnvironment)
-    } yield (problemEnvironment, command)
+    } yield command
 }
