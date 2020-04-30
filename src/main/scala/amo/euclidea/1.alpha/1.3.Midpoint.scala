@@ -6,38 +6,35 @@ import amo.geometry.commands.{
     CommandProvider,
     GetCircleCommandProvider,
     GetLineCommandProvider,
-    GetPointCommandProvider,
     GetVerticalBisectorCommandProvider
 }
 import amo.geometry.figures.{ Point }
 import amo.geometry.problems.{
+    Board,
     Cost,
     FullFillEnvironmentAnswer,
     ProblemE,
     ProblemL,
-    SimpleProblemEnvironment
+    ProblemEnvironment
 }
 import amo.implicits._
 
 object Alpha_1_3_Midpoint {
     val p1: Point[AlgReal] = Point(0, 0)
     val p2: Point[AlgReal] = Point(2, 0)
-    val initialEnvironment = SimpleProblemEnvironment[AlgReal](
-        Set(p1, p2)
+    val initialEnvironment = ProblemEnvironment.initialEnvironment[AlgReal](
+        Board(Set(p1, p2))
     )
 
     val goal: Point[AlgReal] = Point(1, 0)
     val answer = new FullFillEnvironmentAnswer[AlgReal](
-        Cost(2, 4),
-        SimpleProblemEnvironment(
-            Set(goal)
-        )
+        Board(Set(goal)),
+        Cost(2, 4)
     )
 
     val commands: Vector[CommandProvider[AlgReal]] = Vector(
         GetLineCommandProvider(),
         GetCircleCommandProvider(),
-        GetPointCommandProvider(),
         GetVerticalBisectorCommandProvider()
     )
 

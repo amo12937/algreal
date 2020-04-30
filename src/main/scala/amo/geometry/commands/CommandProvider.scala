@@ -1,8 +1,8 @@
 package amo.geometry.commands
 
-import amo.geometry.problems.ProblemEnvironment
+import amo.geometry.problems.Board
 
 trait CommandProvider[T] {
-    def provideCommands(problemEnvironment: ProblemEnvironment[T]): Iterator[Command[T]]
+    def provideCommands(board: Board[T]): Iterator[Command[T]]
 }
 

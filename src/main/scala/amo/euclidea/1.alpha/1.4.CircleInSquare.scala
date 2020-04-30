@@ -6,16 +6,16 @@ import amo.geometry.commands.{
     CommandProvider,
     GetCircleCommandProvider,
     GetLineCommandProvider,
-    GetPointCommandProvider,
     GetVerticalBisectorCommandProvider
 }
 import amo.geometry.figures.{ Circle, Point, Line, LineLike, LineSegment }
 import amo.geometry.problems.{
+    Board,
     Cost,
     FullFillEnvironmentAnswer,
     ProblemE,
     ProblemL,
-    SimpleProblemEnvironment
+    ProblemEnvironment
 }
 import amo.implicits._
 
@@ -28,22 +28,19 @@ object Alpha_1_4_CircleInSquare {
     val l2: LineLike[AlgReal] = LineSegment(p2, p3)
     val l3: LineLike[AlgReal] = LineSegment(p3, p4)
     val l4: LineLike[AlgReal] = LineSegment(p4, p1)
-    val initialEnvironment = SimpleProblemEnvironment[AlgReal](
-        Set(p1, p2, p3, p4), Set(l1, l2, l3, l4)
+    val initialEnvironment = ProblemEnvironment.initialEnvironment[AlgReal](
+        Board(Set(p1, p2, p3, p4), Set(l1, l2, l3, l4))
     )
 
     val goal: Circle[AlgReal] = Circle(Point(1, 1), AlgReal(1))
     val answer = new FullFillEnvironmentAnswer[AlgReal](
+        Board(circles = Set(goal)),
         Cost(3, 5),
-        SimpleProblemEnvironment(
-            circles = Set(goal)
-        )
     )
 
     val commands: Vector[CommandProvider[AlgReal]] = Vector(
         GetLineCommandProvider(),
         GetCircleCommandProvider(),
-        GetPointCommandProvider(),
         GetVerticalBisectorCommandProvider()
     )
 

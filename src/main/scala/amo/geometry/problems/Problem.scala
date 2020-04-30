@@ -3,22 +3,21 @@ package amo.geometry.problems
 import amo.geometry.commands.CommandProvider
 
 trait Problem[T] {
-    val initialProblemEnvironment: ProblemEnvironment[T]
+    val initialEnvironment: ProblemEnvironment[T]
     val commandProviders: Vector[CommandProvider[T]]
     val answer: ProblemAnswer[T]
 
     def isSolved(
-        cost: Cost,
         problemEnvironment: ProblemEnvironment[T]
     ): Boolean =
-        !isOverCost(cost) && answer.fulfill(problemEnvironment)
+        !isOverCost(problemEnvironment.cost) && answer.fulfill(problemEnvironment.board)
     def isOverCost(cost: Cost): Boolean
     def availableCommandProviders: Iterator[CommandProvider[T]] =
         commandProviders.toIterator
 }
 
 case class ProblemL[T](
-    initialProblemEnvironment: ProblemEnvironment[T],
+    initialEnvironment: ProblemEnvironment[T],
     commandProviders: Vector[CommandProvider[T]],
     answer: ProblemAnswer[T]
 ) extends Problem[T] {
@@ -26,7 +25,7 @@ case class ProblemL[T](
 }
 
 case class ProblemE[T](
-    initialProblemEnvironment: ProblemEnvironment[T],
+    initialEnvironment: ProblemEnvironment[T],
     commandProviders: Vector[CommandProvider[T]],
     answer: ProblemAnswer[T]
 ) extends Problem[T] {
