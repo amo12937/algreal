@@ -28,7 +28,7 @@ object Alpha_1_2_VerticalBisector {
 
     val goal: LineLike[AlgReal] = Line(Point(1, -1), Point(1, 1))
     val answer = new FullFillEnvironmentAnswer[AlgReal](
-        Board(Set(), Set(goal)),
+        Vector(Board(Set(), Set(goal))),
         Cost(3, 3)
     )
 

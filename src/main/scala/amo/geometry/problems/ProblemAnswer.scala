@@ -7,11 +7,13 @@ trait ProblemAnswer[T] {
 }
 
 class FullFillEnvironmentAnswer[T](
-    val answerBoard: Board[T],
+    val answerBoards: Vector[Board[T]],
     val cost: Cost
 ) extends ProblemAnswer[T] {
     def fulfill(board: Board[T]): Boolean =
-        answerBoard.points.subsetOf(board.points) &&
-        answerBoard.lines.subsetOf(board.lines) &&
-        answerBoard.circles.subsetOf(board.circles)
+        answerBoards.exists(ab => {
+            ab.points.subsetOf(board.points) &&
+            ab.lines.subsetOf(board.lines) &&
+            ab.circles.subsetOf(board.circles)
+        })
 }

@@ -30,6 +30,7 @@ sealed trait AlgReal extends Equals with Ordered[AlgReal] {
     def / (rhs: AlgReal): AlgReal = this * rhs.inverse
 
     def pow(n: BigInt): AlgReal
+    def ^ (n: BigInt): AlgReal = pow(n)
     def nthRoot(n: Int): AlgReal
     def powRat(q: QuotientField[BigInt]) =
         if (q.denom < Int.MaxValue) nthRoot(q.denom.intValue).pow(q.num)

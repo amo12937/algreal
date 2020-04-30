@@ -28,7 +28,7 @@ object Alpha_1_3_Midpoint {
 
     val goal: Point[AlgReal] = Point(1, 0)
     val answer = new FullFillEnvironmentAnswer[AlgReal](
-        Board(Set(goal)),
+        Vector(Board(Set(goal))),
         Cost(2, 4)
     )
 
