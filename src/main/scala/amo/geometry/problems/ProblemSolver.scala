@@ -8,22 +8,30 @@ class ProblemSolver[T] {
     def solve(problem: Problem[T]): Vector[Command[T]] = {
         val env = problem.initialEnvironment
         val queue = nextCommands(problem, env)
-        recursiveSolve(problem, queue)
+        recursiveSolve(problem, queue, Set())
     }
 
     @tailrec
     final def recursiveSolve(
         problem: Problem[T],
-        queue: Iterator[(Command[T], ProblemEnvironment[T])]
+        queue: Iterator[(Command[T], ProblemEnvironment[T])],
+        prevBoardHistory: Set[Board[T]]
     ): Vector[Command[T]] = if (!queue.hasNext) Vector.empty else {
         val (command, prevProblemEnvironment) = queue.next
         val problemEnvironment = prevProblemEnvironment.applyCommand(command)
         if (problem.isSolved(problemEnvironment)) problemEnvironment.commands
         else {
-            val nextQueue =
-                if (problem.isOverCost(problemEnvironment.cost)) Iterator.empty
-                else nextCommands(problem, problemEnvironment)
-            recursiveSolve(problem, queue ++ nextQueue)
+            val board = problemEnvironment.board
+            val (nextQueue, boardHistory) =
+                if (prevBoardHistory.contains(board))
+                    (Iterator.empty, prevBoardHistory)
+                else if (problem.isOverCost(problemEnvironment.cost))
+                    (Iterator.empty, prevBoardHistory + board)
+                else (
+                    nextCommands(problem, problemEnvironment),
+                    prevBoardHistory + board
+                )
+            recursiveSolve(problem, queue ++ nextQueue, boardHistory)
         }
     }
 

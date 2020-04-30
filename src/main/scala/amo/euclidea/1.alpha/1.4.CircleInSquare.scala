@@ -39,9 +39,9 @@ object Alpha_1_4_CircleInSquare {
     )
 
     val commands: Vector[CommandProvider[AlgReal]] = Vector(
+        GetVerticalBisectorCommandProvider(),
         GetLineCommandProvider(),
         GetCircleCommandProvider(),
-        GetVerticalBisectorCommandProvider()
     )
 
     val problem = new Problem[AlgReal] {
