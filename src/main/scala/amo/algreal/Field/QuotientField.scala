@@ -128,5 +128,25 @@ object QuotientField {
             implicit implicitlyGcdDomainT: GcdDomainTrait[T]
         ): QuotientFieldTrait[T]
         with QuotientFieldEqTrait[T] = makeQuotientField[T]
+
+        implicit class QuotientFieldMathExtension[T](r: QuotientField[T])(
+            implicit gcdDomainT: GcdDomainTrait[T],
+            orderingQ: Ordering[QuotientField[T]]
+        ) {
+            val gcdDomainQ = implicitly[QuotientFieldTrait[T]]
+            def floor: T =
+                if (orderingQ.lt(r, gcdDomainQ.zero))
+                    gcdDomainT.negate(new QuotientFieldMathExtension(-r).ceil)
+                else gcdDomainT.divide(r.num, r.denom)
+
+            def ceil: T =
+                if (orderingQ.lt(r, gcdDomainQ.zero))
+                    gcdDomainT.negate(new QuotientFieldMathExtension(-r).floor)
+                else {
+                    val q = gcdDomainT.divide(r.num, r.denom)
+                    if (gcdDomainT.equiv(r.num, gcdDomainT.times(q, r.denom))) q
+                    else gcdDomainT.add(q, gcdDomainT.one)
+                }
+        }
     }
 }

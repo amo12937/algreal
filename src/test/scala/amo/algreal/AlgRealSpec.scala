@@ -1,6 +1,7 @@
 package amo.algreal
 
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpec
 
 import amo.implicits._
@@ -8,7 +9,7 @@ import amo.algreal.AlgReal.{ Rat, AlgRealPoly, mkAlgReal }
 import amo.algreal.factors.Hensel.implicits._
 import amo.algreal.polynomial.Unipoly
 
-class AlgRealSpec extends AnyWordSpec with Matchers {
+class AlgRealSpec extends AnyWordSpec with Matchers with TableDrivenPropertyChecks {
     val x = Unipoly.ind[BigInt]
 
     "+" should {
@@ -188,6 +189,40 @@ class AlgRealSpec extends AnyWordSpec with Matchers {
             val expected = mkAlgReal((x^2) - 2, Interval(1, 2))
 
             actual should be(expected)
+        }
+    }
+
+    "floor" should {
+        "return BigInt which is the largest number not exceeding X" in {
+            val cases = Table(
+                ("inputX", "outputI"),
+                (AlgReal(0), BigInt(0)),
+                (AlgReal(2), BigInt(2)),
+                (AlgReal(-1), BigInt(-1)),
+                (AlgReal(5, 2), BigInt(2)),
+                (AlgReal(-5, 2), BigInt(-3)),
+                (AlgReal(5).sqrt, BigInt(2)),
+                (-AlgReal(5).sqrt, BigInt(-3))
+            )
+
+            forAll(cases) { (inputX, outputI) =>
+                val actual = inputX.floor
+                actual should be(outputI)
+            }
+        }
+    }
+
+    "hashCode" should {
+        "return same value if the definingPolynomial is same" in {
+            val a = mkAlgReal((x^2) - 3, Interval(1, 2))
+            val b = mkAlgReal((x^2) - 3, Interval(0, 4))
+            val c = mkAlgReal((x^3) - 2, Interval(1, 2))
+            b.hashCode should be(a.hashCode)
+            c.hashCode should be(a.hashCode)
+
+            val s = Set(a)
+            s.contains(b) should be(true)
+            s.contains(c) should be(false)
         }
     }
 

@@ -1,6 +1,6 @@
 package amo.algreal
 
-class Interval[T](val left: T, val right: T)(implicit ordering: Ordering[T]) extends Equals {
+case class Interval[T](val left: T, val right: T)(implicit ordering: Ordering[T]) extends Equals {
     def + (rhs: Interval[T])(implicit ring: RingTrait[T]) = Interval(
         ring.add(left, rhs.left),
         ring.add(right, rhs.right)

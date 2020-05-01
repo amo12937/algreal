@@ -283,6 +283,11 @@ class Unipoly[T](val cs: Vector[T])(
             }
         case _ => false
     }
+
+    def height(implicit ordering: Ordering[T]): T =
+        cs.foldLeft(gcdDomainT.fromInt(degreeInt)){ (acc, c) =>
+            gcdDomainT.add(acc, gcdDomainT.abs(c))
+        }
 }
 
 object Unipoly {

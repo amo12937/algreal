@@ -34,6 +34,7 @@ trait LineLike[T] extends Figure2D[T] {
             interval == l.interval
         case _ => false
     }
+    override def hashCode = (a.hashCode, b.hashCode, c.hashCode, interval.hashCode).hashCode
 }
 
 object LineLike {

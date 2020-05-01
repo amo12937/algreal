@@ -1,13 +1,14 @@
 package amo.algreal.polynomial
 
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpec
 
 import amo.algreal.RingTrait
 import amo.algreal.Field.QuotientField
 import amo.implicits._
 
-class UnipolySpec extends AnyWordSpec with Matchers {
+class UnipolySpec extends AnyWordSpec with Matchers with TableDrivenPropertyChecks {
     val x = Unipoly.ind[BigInt]
 
     "toStringWithInd" should {
@@ -109,6 +110,25 @@ class UnipolySpec extends AnyWordSpec with Matchers {
         "return g if f is zero" in {
             val g = Unipoly[BigInt](-1, 0, 4) // 4x^2 - 1
             Unipoly[BigInt]() gcd g should be(g)
+        }
+    }
+
+    "height" should {
+        "return height of Unipoky" in {
+            val cases = Table(
+                ("inputU", "outputT"),
+                (x, BigInt(2)),
+                (x + 1, BigInt(3)),
+                (2 * x, BigInt(3)),
+                (x^2, BigInt(3)),
+                (-x^2, BigInt(3)),
+                (3 * (x^2) - 2*x + 1, BigInt(8)),
+            )
+
+            forAll(cases) { (inputU, outputT) =>
+                val actual = inputU.height
+                actual should be(outputT)
+            }
         }
     }
 

@@ -11,7 +11,7 @@ case class GetCircleCommand[T](
     implicit constructible: ConstructibleTrait[T],
     ordering: Ordering[T]
 ) extends Command[T] {
-    val cost = Cost(1, 1)
+    val cost = GetCircleCommand.cost
 
     def run(board: Board[T]): Board[T] =
         board.addCircle(Circle(p1, p1.dist(p2)))
@@ -21,6 +21,8 @@ case class GetCircleCommandProvider[T]()(
     implicit constructible: ConstructibleTrait[T],
     ordering: Ordering[T]
 ) extends CommandProvider[T] {
+    val cost = GetCircleCommand.cost
+
     def provideCommands(board: Board[T]): Iterator[Command[T]] =
         board.points.toVector.combinations(2).flatMap {
             case Seq(p1, p2) => Iterator(
@@ -28,4 +30,8 @@ case class GetCircleCommandProvider[T]()(
                 GetCircleCommand(p2, p1),
             )
         }
+}
+
+object GetCircleCommand {
+    val cost = Cost(1, 1)
 }

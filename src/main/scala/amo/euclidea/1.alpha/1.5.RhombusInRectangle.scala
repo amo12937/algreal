@@ -40,7 +40,7 @@ object Alpha_1_5_RhombusInRectangle {
     val answer = new FullFillEnvironmentAnswer[AlgReal](
         Vector(
             Board(lines = Set(
-                Line(p0, Point(q2, 1)),
+                Line(p1, Point(q2, 1)),
                 Line(Point(q1, 0), p3)
             )),
             Board(lines = Set(

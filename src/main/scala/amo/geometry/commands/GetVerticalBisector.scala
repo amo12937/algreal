@@ -11,7 +11,7 @@ case class GetVerticalBisectorCommand[T](
     implicit constructible: ConstructibleTrait[T],
     ordering: Ordering[T]
 ) extends Command[T] {
-    val cost = Cost(1, 3)
+    val cost = GetVerticalBisectorCommand.cost
 
     def run(board: Board[T]): Board[T] = {
         val middle = (p1 + p2).scalarDiv(constructible.fromInt(2))
@@ -26,8 +26,14 @@ case class GetVerticalBisectorCommandProvider[T]()(
     implicit constructible: ConstructibleTrait[T],
     ordering: Ordering[T]
 ) extends CommandProvider[T] {
+    val cost = GetVerticalBisectorCommand.cost
+
     def provideCommands(board: Board[T]): Iterator[Command[T]] =
         board.points.toVector.combinations(2).map {
             case Seq(p1, p2) => GetVerticalBisectorCommand(p1, p2)
         }
+}
+
+object GetVerticalBisectorCommand {
+    val cost = Cost(1, 3)
 }

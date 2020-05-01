@@ -36,6 +36,9 @@ sealed trait AlgReal extends Equals with Ordered[AlgReal] {
         if (q.denom < Int.MaxValue) nthRoot(q.denom.intValue).pow(q.num)
         else new RuntimeException(s"to big denom: ${q}")
     def sqrt = nthRoot(2)
+
+    def floor: BigInt
+    def ceil: BigInt
 }
 
 object AlgRealImplicits
@@ -52,6 +55,8 @@ with Unipoly.implicits {
 
 object AlgReal {
     import AlgRealImplicits._
+
+    val HASH_ACCURACY = 65536
 
     val r = new ScalaRandom
     val hensel: Hensel = new Hensel(r.nextBigInt(_))
@@ -146,6 +151,9 @@ object AlgReal {
             }
             else throw new RuntimeException(s"root negative ${(n, this)}")
         }
+
+        def floor = r.floor
+        def ceil = r.ceil
     }
 
     case class AlgRealPoly(
@@ -192,7 +200,14 @@ object AlgReal {
             }
         }
 
-        def unary_- = AlgRealPoly(f.composition(-Unipoly.ind[BigInt]), -s, -i)
+        def unary_- = {
+            val newF = f.composition(-Unipoly.ind[BigInt])
+            AlgRealPoly(
+                if (f.degreeInt % 2 == 0) newF else -newF,
+                -s,
+                -i
+            )
+        }
 
         def * (rhs: AlgReal) = rhs match {
             case Rat(r) => if (r == QuotientField.zero[BigInt]) Rat(r) else mkAlgReal(
@@ -255,6 +270,17 @@ object AlgReal {
 
         override def toString =
             s"AlgRealPoly(${f.toStringWithInd("x")}, (${i.left}, ${i.right}))"
+
+        def floor =
+            intervals.map(iv => (iv.left.floor, iv.right.floor))
+                .dropWhile({case (l, r) => l != r}).next._1
+        def ceil =
+            intervals.map(iv => (iv.left.ceil, iv.right.ceil))
+                .dropWhile({case (l, r) => l != r}).next._2
+
+        override def hashCode =
+            f.height.hashCode
+        //    algRealField.timesN(this, HASH_ACCURACY).floor.hashCode
     }
 
     def mkAlgReal(
@@ -267,13 +293,18 @@ object AlgReal {
             case Vector(a, b) => Rat(QuotientField(-a, b))
         }
         else {
-            val s = f.signAt(iv.right) match {
-                case 0 => f.diff.signAt(iv.right)
+            val ff =
+                if (f.leadingCoefficient > 0)
+                    f.primitivePart
+                else
+                    -f.primitivePart
+            val s = ff.signAt(iv.right) match {
+                case 0 => ff.diff.signAt(iv.right)
                 case k => k
             }
-            f.intervalsWithSign(s, iv)
+            ff.intervalsWithSign(s, iv)
                 .find(iv2 => !iv2.contains(0))
-                .map(AlgRealPoly(f, s, _))
+                .map(AlgRealPoly(ff, s, _))
                 .getOrElse(Rat(0))
         }
     }

@@ -40,6 +40,7 @@ class ProblemSolver[T] {
         problemEnvironment: ProblemEnvironment[T]
     ): Iterator[(Command[T], ProblemEnvironment[T])] = for {
         commandProvider <- problem.availableCommandProviders
+            if (!problem.isOverCost(problemEnvironment.cost + commandProvider.cost))
         command <- commandProvider.provideCommands(problemEnvironment.board)
     } yield (command, problemEnvironment)
 }
