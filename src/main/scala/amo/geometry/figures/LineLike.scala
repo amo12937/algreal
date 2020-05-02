@@ -6,6 +6,7 @@ import amo.algreal.Closure.implicits._
 import Binomial._
 
 trait LineLike[T] extends Figure2D[T] {
+    implicit val constructible: ConstructibleTrait[T]
     val a: T
     val b: T
     val c: T
@@ -13,7 +14,8 @@ trait LineLike[T] extends Figure2D[T] {
     val p1: Point[T]
     val p2: Point[T]
     lazy val direction = p2 - p1
-    lazy val eDirection = direction.scalarDiv(direction.norm)
+    lazy val directionNorm = direction.norm
+    lazy val eDirection = direction.scalarDiv(directionNorm)
 
     val interval: Interval[Closure[T]]
 
@@ -22,7 +24,10 @@ trait LineLike[T] extends Figure2D[T] {
     def definingBinomial: Binomial[T] = f
 
     def innerProductIsInInterval(p: Point[T]): Boolean = {
-        val ip = Closure(eDirection.innerProduct(p - p1))
+        val ip = Closure(constructible.divide(
+            eDirection.innerProduct(p - p1),
+            directionNorm
+        ))
         interval.contains(ip)
     }
 

@@ -25,6 +25,20 @@ class TwoLineSolverSpec extends AnyWordSpec with Matchers {
             val expected = Vector[Point[AlgReal]]()
             actual should be(expected)
         }
+
+        "return a point with line segment" in {
+            val a = AlgReal(3).nthRoot(3)
+            val b = ((a^2) + 1) / (2 * a)
+            val c = b - a
+            val p0: Point[AlgReal] = Point(0, 0)
+            val p1: Point[AlgReal] = Point(b, 0)
+            val l1: LineLike[AlgReal] = LineSegment(Point(0, 0), Point(a, 0))
+            val l2: LineLike[AlgReal] = Line(p1, Point(c, 1))
+
+            l1.innerProductIsInInterval(p1) should be(true)
+            l2.innerProductIsInInterval(p1) should be(true)
+            l1.intersects(l2).toSet should be(Set(p1))
+        }
     }
 
     "LineCircleSolver" should {
