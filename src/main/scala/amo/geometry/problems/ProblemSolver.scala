@@ -14,11 +14,11 @@ class ProblemSolver[T] {
     @tailrec
     final def recursiveSolve(
         problem: Problem[T],
-        queue: Iterator[(Command[T], ProblemEnvironment[T])],
+        queue: Iterator[(Command[T], Cost, ProblemEnvironment[T])],
         prevBoardHistory: Set[Board[T]]
     ): Vector[Command[T]] = if (!queue.hasNext) Vector.empty else {
-        val (command, prevProblemEnvironment) = queue.next
-        val problemEnvironment = prevProblemEnvironment.applyCommand(command)
+        val (command, cost, prevProblemEnvironment) = queue.next
+        val problemEnvironment = prevProblemEnvironment.applyCommand(command, cost)
         if (problem.isSolved(problemEnvironment)) problemEnvironment.commands
         else {
             val board = problemEnvironment.board
@@ -38,9 +38,17 @@ class ProblemSolver[T] {
     def nextCommands(
         problem: Problem[T],
         problemEnvironment: ProblemEnvironment[T]
-    ): Iterator[(Command[T], ProblemEnvironment[T])] = for {
-        commandProvider <- problem.availableCommandProviders
-            if (!problem.isOverCost(problemEnvironment.cost + commandProvider.cost))
-        command <- commandProvider.provideCommands(problemEnvironment.board)
-    } yield (command, problemEnvironment)
+    ): Iterator[(Command[T], Cost, ProblemEnvironment[T])] = {
+        val x = (for {
+            provider <- problem.availableCommandProviders
+                if (!problem.isOverCost(problemEnvironment.cost + provider.cost))
+            command <- provider.provideCommands(problemEnvironment.board)
+        } yield (command, provider.cost, problemEnvironment))
+            .toVector
+            .groupBy(_._1)
+            .mapValues(_.minBy(_._2.costE))
+            .values
+        println(x.size)
+        x.toIterator
+    }
 }

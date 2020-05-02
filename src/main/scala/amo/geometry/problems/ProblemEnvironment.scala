@@ -8,13 +8,12 @@ case class ProblemEnvironment[T](
     cost: Cost,
     commands: Vector[Command[T]],
 ) {
-    def applyCommand(command: Command[T]): ProblemEnvironment[T] = {
+    def applyCommand(command: Command[T], _cost: Cost): ProblemEnvironment[T] =
         ProblemEnvironment(
             command.run(board),
-            cost + command.cost,
+            cost + _cost,
             commands :+ command
         )
-    }
 }
 
 object ProblemEnvironment {
