@@ -34,7 +34,7 @@ object Alpha_1_5_RhombusInRectangle {
         Board(Set(p1, p2, p3, p4), Set(l1, l2, l3, l4))
     )
 
-    val q1 = ((a^2) - 1) / (2 * a)
+    val q1 = ((a^2) + 1) / (2 * a)
     val q2 = a - q1
 
     val answer = new FullFillEnvironmentAnswer[AlgReal](

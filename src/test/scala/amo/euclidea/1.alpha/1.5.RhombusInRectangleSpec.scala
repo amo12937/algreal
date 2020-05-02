@@ -5,7 +5,7 @@ import org.scalatest.wordspec.AnyWordSpec
 
 import amo.algreal.AlgReal
 import amo.geometry.figures.Point
-import amo.geometry.commands.{ GetVerticalBisectorCommand }
+import amo.geometry.commands.{ GetLineCommand, GetVerticalBisectorCommand }
 import amo.implicits._
 
 class Alpha_1_5_RhombusInRectangleSpec extends AnyWordSpec with Matchers {
@@ -21,13 +21,16 @@ class Alpha_1_5_RhombusInRectangleSpec extends AnyWordSpec with Matchers {
             val p5: Point[AlgReal] = Point(b, 0)
             val p6: Point[AlgReal] = Point(c, 1)
 
-            val command1 = GetVerticalBisectorCommand(p1, p3)
+            val commands = Vector(
+                GetVerticalBisectorCommand(p1, p3),
+                GetLineCommand(p1, p6),
+                GetLineCommand(p3, p5)
+            )
 
-            val env1 = a15.problem.problemL.initialEnvironment
+            val initEnv = a15.problem.problemL.initialEnvironment
+            val resultEnv = commands.foldLeft(initEnv)((e, c) => e.applyCommand(c))
 
-            val env2 = env1.applyCommand(command1)
-            env2.board.points.contains(p5) should be(true)
-            env2.board.points.contains(p6) should be(true)
+            a15.answer.fulfill(resultEnv.board) should be(true)
         }
     }
 }
