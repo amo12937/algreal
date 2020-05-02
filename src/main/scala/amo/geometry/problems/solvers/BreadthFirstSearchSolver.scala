@@ -1,10 +1,12 @@
-package amo.geometry.problems
+package amo.geometry.problems.solvers
 
 import scala.annotation.tailrec
+import cats._
 
 import amo.geometry.commands.Command
+import amo.geometry.problems.{ Board, Cost, Problem, ProblemEnvironment }
 
-class ProblemSolver[T] {
+class BreadthFirstSearchSolver[T] extends Solver[T, Id]{
     def solve(problem: Problem[T]): Vector[Command[T]] = {
         val env = problem.initialEnvironment
         val queue = nextCommands(problem, env)
