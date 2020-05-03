@@ -24,15 +24,12 @@ class BreadthFirstSearchSolver[T] extends Solver[T, Id]{
         if (problem.isSolved(problemEnvironment)) problemEnvironment.commands
         else {
             val board = problemEnvironment.board
-            val (nextQueue, boardHistory) =
-                if (prevBoardHistory.contains(board))
-                    (Iterator.empty, prevBoardHistory)
-                else if (problem.isOverCost(problemEnvironment.cost))
-                    (Iterator.empty, prevBoardHistory + board)
-                else (
-                    nextCommands(problem, problemEnvironment),
-                    prevBoardHistory + board
-                )
+            val nextQueue =
+                if (prevBoardHistory.contains(board)) Iterator.empty
+                else if (problem.isOverCost(problemEnvironment.cost)) Iterator.empty
+                else if (!problem.canReachAnswer(problemEnvironment)) Iterator.empty
+                else nextCommands(problem, problemEnvironment)
+            val boardHistory = prevBoardHistory + board
             recursiveSolve(problem, queue ++ nextQueue, boardHistory)
         }
     }

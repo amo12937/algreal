@@ -31,6 +31,7 @@ class FutureDepthFirstSearchSolver[T](
                     val nextTasks =
                         if (problem.isOverCost(env.cost)) Iterator.empty
                         else if (boardHistory.isDefinedAt(board)) Iterator.empty
+                        else if (!problem.canReachAnswer(env)) Iterator.empty
                         else nextCommands(problem, env)
                     boardHistory += ((board, ()))
                     concurrentSearch(problem, nextTasks, boardHistory)

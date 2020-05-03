@@ -11,7 +11,17 @@ trait Problem[T] {
         problemEnvironment: ProblemEnvironment[T]
     ): Boolean =
         !isOverCost(problemEnvironment.cost) && answer.fulfill(problemEnvironment.board)
-    def isOverCost(cost: Cost): Boolean
+    def canReachAnswer(
+        problemEnvironment: ProblemEnvironment[T]
+    ): Boolean =
+        answer.remaining(problemEnvironment.board) <= remainingCost(problemEnvironment.cost)
+
+    def costToInt(cost: Cost): Int
+    def remainingCost(cost: Cost): Int =
+        costToInt(answer.cost) - costToInt(cost)
+    def isOverCost(cost: Cost): Boolean =
+        remainingCost(cost) < 0
+
     def availableCommandProviders: Iterator[CommandProvider[T]] =
         commandProviders.toIterator
 }
@@ -21,7 +31,7 @@ case class ProblemL[T](
     commandProviders: Vector[CommandProvider[T]],
     answer: ProblemAnswer[T]
 ) extends Problem[T] {
-    def isOverCost(cost: Cost): Boolean = answer.cost.costL < cost.costL
+    def costToInt(cost: Cost): Int = cost.costL
 }
 
 case class ProblemE[T](
@@ -29,5 +39,5 @@ case class ProblemE[T](
     commandProviders: Vector[CommandProvider[T]],
     answer: ProblemAnswer[T]
 ) extends Problem[T] {
-    def isOverCost(cost: Cost): Boolean = answer.cost.costE < cost.costE
+    def costToInt(cost: Cost): Int = cost.costE
 }

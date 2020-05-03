@@ -4,6 +4,7 @@ trait ProblemAnswer[T] {
     val cost: Cost
 
     def fulfill(board: Board[T]): Boolean
+    def remaining(board: Board[T]): Int
 }
 
 class FullFillEnvironmentAnswer[T](
@@ -16,4 +17,9 @@ class FullFillEnvironmentAnswer[T](
             ab.lines.subsetOf(board.lines) &&
             ab.circles.subsetOf(board.circles)
         })
+
+    def remaining(board: Board[T]): Int =
+        answerBoards.map(ab => {
+            (ab.lines -- board.lines).size + (ab.circles -- board.circles).size
+        }).min
 }
