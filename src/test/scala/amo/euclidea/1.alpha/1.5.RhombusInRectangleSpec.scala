@@ -5,7 +5,7 @@ import org.scalatest.wordspec.AnyWordSpec
 
 import amo.algreal.AlgReal
 import amo.geometry.figures.{ Line, Point }
-import amo.geometry.commands.{ LineCommand, GetVerticalBisectorCommandProvider }
+import amo.geometry.commands.{ LineCommand, VerticalBisectorCommand }
 import amo.geometry.problems.Cost
 import amo.implicits._
 
@@ -21,12 +21,10 @@ class Alpha_1_5_RhombusInRectangleSpec extends AnyWordSpec with Matchers {
             val p5: Point[AlgReal] = Point(b, 0)
             val p6: Point[AlgReal] = Point(c, 1)
 
-            val vbProvider = GetVerticalBisectorCommandProvider()
-
             val commands = Vector(
-                (vbProvider.makeCommand(p1, p3), Cost(1, 3)),
-                (LineCommand(Line(p1, p6)), Cost(1, 1)),
-                (LineCommand(Line(p3, p5)), Cost(1, 1))
+                (new VerticalBisectorCommand(p1, p3), Cost(1, 3)),
+                (new LineCommand(p1, p6), Cost(1, 1)),
+                (new LineCommand(p3, p5), Cost(1, 1))
             )
 
             val problemL = Alpha_1_5_RhombusInRectangle.problem[AlgReal].problemL

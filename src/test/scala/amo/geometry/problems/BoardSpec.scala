@@ -4,9 +4,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 import amo.algreal.AlgReal
-import amo.geometry.commands.{
-    GetVerticalBisectorCommandProvider
-}
+import amo.geometry.commands.VerticalBisectorCommand
 import amo.geometry.figures.{ Circle, Point, Line, LineLike, LineSegment }
 import amo.implicits._
 
@@ -26,10 +24,8 @@ class BoardSpec extends AnyWordSpec with Matchers {
             val initBoard =
                 Board(Set(p1, p2, p3, p4), Set(l1, l2, l3, l4))
 
-            val vbProvider = GetVerticalBisectorCommandProvider()
-
-            val command1 = vbProvider.makeCommand(p1, p2)
-            val command2 = vbProvider.makeCommand(p3, p4)
+            val command1 = new VerticalBisectorCommand(p1, p2)
+            val command2 = new VerticalBisectorCommand(p3, p4)
 
             val board1 = command1.run(initBoard)
 
