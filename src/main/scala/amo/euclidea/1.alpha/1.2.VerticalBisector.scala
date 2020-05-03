@@ -1,6 +1,6 @@
 package amo.euclidea.alpha
 
-import amo.algreal.AlgReal
+import amo.algreal.field.ConstructibleTrait
 import amo.euclidea.Problem
 import amo.geometry.commands.{
     CommandProvider,
@@ -16,30 +16,35 @@ import amo.geometry.problems.{
     ProblemL,
     ProblemEnvironment
 }
-import amo.implicits._
 
 object Alpha_1_2_VerticalBisector {
-    val p1: Point[AlgReal] = Point(0, 0)
-    val p2: Point[AlgReal] = Point(2, 0)
-    val l: LineLike[AlgReal] = LineSegment(p1, p2)
-    val initialEnvironment = ProblemEnvironment.initialEnvironment[AlgReal](
-        Board(Set(p1, p2), Set(l))
-    )
+    def problem[T](
+        implicit constructible: ConstructibleTrait[T],
+        ordering: Ordering[T]
+    ): Problem[T] = {
+        implicit val nToT = constructible.fromInt _
+        val p1: Point[T] = Point(0, 0)
+        val p2: Point[T] = Point(2, 0)
+        val l = LineSegment(p1, p2)
+        val initialEnvironment = ProblemEnvironment.initialEnvironment[T](
+            Board(Set(p1, p2), Set(l))
+        )
 
-    val goal: LineLike[AlgReal] = Line(Point(1, -1), Point(1, 1))
-    val answer = new FullFillEnvironmentAnswer[AlgReal](
-        Vector(Board(Set(), Set(goal))),
-        Cost(3, 3)
-    )
+        val goal: LineLike[T] = Line(Point(1, -1), Point(1, 1))
+        val answer = new FullFillEnvironmentAnswer[T](
+            Vector(Board(Set(), Set(goal))),
+            Cost(3, 3)
+        )
 
-    val commands: Vector[CommandProvider[AlgReal]] = Vector(
-        GetLineCommandProvider(),
-        GetCircleCommandProvider()
-    )
+        val commands: Vector[CommandProvider[T]] = Vector(
+            GetLineCommandProvider(),
+            GetCircleCommandProvider()
+        )
 
-    val problem = new Problem[AlgReal] {
-        val problemL = ProblemL(initialEnvironment, commands, answer)
-        val problemE = ProblemE(initialEnvironment, commands, answer)
+        new Problem[T] {
+            val problemL = ProblemL(initialEnvironment, commands, answer)
+            val problemE = ProblemE(initialEnvironment, commands, answer)
+        }
     }
 }
 

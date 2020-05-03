@@ -1,6 +1,6 @@
 package amo.euclidea.alpha
 
-import amo.algreal.AlgReal
+import amo.algreal.field.ConstructibleTrait
 import amo.euclidea.Problem
 import amo.geometry.commands.{
     CommandProvider,
@@ -17,30 +17,35 @@ import amo.geometry.problems.{
     ProblemL,
     ProblemEnvironment
 }
-import amo.implicits._
 
 object Alpha_1_3_Midpoint {
-    val p1: Point[AlgReal] = Point(0, 0)
-    val p2: Point[AlgReal] = Point(2, 0)
-    val initialEnvironment = ProblemEnvironment.initialEnvironment[AlgReal](
-        Board(Set(p1, p2))
-    )
+    def problem[T](
+        implicit constructible: ConstructibleTrait[T],
+        ordering: Ordering[T]
+    ): Problem[T] = {
+        implicit val nToT = constructible.fromInt _
+        val p1: Point[T] = Point(0, 0)
+        val p2: Point[T] = Point(2, 0)
+        val initialEnvironment = ProblemEnvironment.initialEnvironment[T](
+            Board(Set(p1, p2))
+        )
 
-    val goal: Point[AlgReal] = Point(1, 0)
-    val answer = new FullFillEnvironmentAnswer[AlgReal](
-        Vector(Board(Set(goal))),
-        Cost(2, 4)
-    )
+        val goal: Point[T] = Point(1, 0)
+        val answer = new FullFillEnvironmentAnswer[T](
+            Vector(Board(Set(goal))),
+            Cost(2, 4)
+        )
 
-    val commands: Vector[CommandProvider[AlgReal]] = Vector(
-        GetLineCommandProvider(),
-        GetCircleCommandProvider(),
-        GetVerticalBisectorCommandProvider()
-    )
+        val commands: Vector[CommandProvider[T]] = Vector(
+            GetLineCommandProvider(),
+            GetCircleCommandProvider(),
+            GetVerticalBisectorCommandProvider()
+        )
 
-    val problem = new Problem[AlgReal] {
-        val problemL = ProblemL(initialEnvironment, commands, answer)
-        val problemE = ProblemE(initialEnvironment, commands, answer)
+        new Problem[T] {
+            val problemL = ProblemL(initialEnvironment, commands, answer)
+            val problemE = ProblemE(initialEnvironment, commands, answer)
+        }
     }
 }
 
