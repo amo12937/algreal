@@ -12,7 +12,7 @@ class LineCommand[T](p1: Point[T], p2: Point[T])(
     override def toString = s"Draw a line connecting point ${p1} and point ${p2}"
 }
 
-case class GetLineCommandProvider[T]()(
+case class LineCommandProvider[T]()(
     implicit constructible: ConstructibleTrait[T],
     ordering: Ordering[T]
 ) extends CommandProvider[T] {

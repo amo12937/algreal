@@ -4,9 +4,9 @@ import amo.algreal.field.ConstructibleTrait
 import amo.euclidea.Problem
 import amo.geometry.commands.{
     CommandProvider,
-    GetCircleCommandProvider,
-    GetLineCommandProvider,
-    GetVerticalBisectorCommandProvider
+    CircleCommandProvider,
+    LineCommandProvider,
+    VerticalBisectorCommandProvider
 }
 import amo.geometry.figures.{ Point }
 import amo.geometry.problems.{
@@ -37,9 +37,9 @@ object Alpha_1_3_Midpoint {
         )
 
         val commands: Vector[CommandProvider[T]] = Vector(
-            GetLineCommandProvider(),
-            GetCircleCommandProvider(),
-            GetVerticalBisectorCommandProvider()
+            LineCommandProvider(),
+            CircleCommandProvider(),
+            VerticalBisectorCommandProvider()
         )
 
         new Problem[T] {

@@ -4,8 +4,8 @@ import amo.algreal.field.ConstructibleTrait
 import amo.euclidea.Problem
 import amo.geometry.commands.{
     CommandProvider,
-    GetCircleCommandProvider,
-    GetLineCommandProvider,
+    CircleCommandProvider,
+    LineCommandProvider,
 }
 import amo.geometry.figures.{ Point, Line, LineLike, LineSegment }
 import amo.geometry.problems.{
@@ -37,8 +37,8 @@ object Alpha_1_2_VerticalBisector {
         )
 
         val commands: Vector[CommandProvider[T]] = Vector(
-            GetLineCommandProvider(),
-            GetCircleCommandProvider()
+            LineCommandProvider(),
+            CircleCommandProvider()
         )
 
         new Problem[T] {

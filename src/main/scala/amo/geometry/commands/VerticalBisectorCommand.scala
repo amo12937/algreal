@@ -17,7 +17,7 @@ class VerticalBisectorCommand[T](p1: Point[T], p2: Point[T])(
     override def toString = s"Draw a vertical bisector between point ${p1} and ${p2}"
 }
 
-case class GetVerticalBisectorCommandProvider[T]()(
+case class VerticalBisectorCommandProvider[T]()(
     implicit constructible: ConstructibleTrait[T],
     ordering: Ordering[T]
 ) extends CommandProvider[T] {

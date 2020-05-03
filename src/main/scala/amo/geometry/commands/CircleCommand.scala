@@ -12,7 +12,7 @@ class CircleCommand[T](p1: Point[T], p2: Point[T])(
     override def toString = s"Draw a circle passing through ${p2} with the center ${p1}"
 }
 
-case class GetCircleCommandProvider[T]()(
+case class CircleCommandProvider[T]()(
     implicit constructible: ConstructibleTrait[T],
     ordering: Ordering[T]
 ) extends CommandProvider[T] {
