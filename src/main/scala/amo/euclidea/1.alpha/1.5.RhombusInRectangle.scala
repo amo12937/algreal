@@ -20,7 +20,7 @@ import amo.geometry.problems.{
 import amo.implicits._
 
 object Alpha_1_5_RhombusInRectangle {
-    val a = AlgReal(3).nthRoot(3) // 3^(1/3) ≒ 1.442
+    val a = AlgReal(3) //.nthRoot(3) // 3^(1/3) ≒ 1.442
     val p1: Point[AlgReal] = Point(0, 0)
     val p2: Point[AlgReal] = Point(a, 0)
     val p3: Point[AlgReal] = Point(a, 1)

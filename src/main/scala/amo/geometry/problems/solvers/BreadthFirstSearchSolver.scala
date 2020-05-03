@@ -40,17 +40,10 @@ class BreadthFirstSearchSolver[T] extends Solver[T, Id]{
     def nextCommands(
         problem: Problem[T],
         problemEnvironment: ProblemEnvironment[T]
-    ): Iterator[(Command[T], Cost, ProblemEnvironment[T])] = {
-        val x = (for {
+    ): Iterator[(Command[T], Cost, ProblemEnvironment[T])] =
+        for {
             provider <- problem.availableCommandProviders
                 if (!problem.isOverCost(problemEnvironment.cost + provider.cost))
             command <- provider.provideCommands(problemEnvironment.board)
-        } yield (command, provider.cost, problemEnvironment))
-            .toVector
-            .groupBy(_._1)
-            .mapValues(_.minBy(_._2.costE))
-            .values
-        println(x.size)
-        x.toIterator
-    }
+        } yield (command, provider.cost, problemEnvironment)
 }
