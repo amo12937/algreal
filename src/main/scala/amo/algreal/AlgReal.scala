@@ -3,7 +3,7 @@ package amo.algreal
 import scala.util.{ Random => ScalaRandom }
 
 import amo.algreal.factors.Hensel
-import amo.algreal.Field.{ AlgebraicClosureTrait, QuotientField, QuotientFieldOrderingExtension }
+import amo.algreal.field.{ AlgebraicClosureTrait, QuotientField, QuotientFieldOrderingExtension }
 import amo.algreal.polynomial.{ AlgRealExtension, StrumExtension, Unipoly }
 import amo.util.Random
 

@@ -1,6 +1,6 @@
-package amo.algreal.Field.pseudoalgebraicclosure
+package amo.algreal.field.pseudoalgebraicclosure
 
-import amo.algreal.Field.AlgebraicClosureTrait
+import amo.algreal.field.AlgebraicClosureTrait
 
 sealed trait PseudoAlgebraicClosure[T] {
     implicit val algebraicClosure: AlgebraicClosureTrait[T]

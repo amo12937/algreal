@@ -1,4 +1,4 @@
-package amo.algreal.Field.pseudoalgebraicclosure
+package amo.algreal.field.pseudoalgebraicclosure
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

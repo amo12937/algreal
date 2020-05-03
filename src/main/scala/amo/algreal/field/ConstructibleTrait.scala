@@ -1,4 +1,4 @@
-package amo.algreal.Field
+package amo.algreal.field
 
 trait ConstructibleTrait[T] extends FieldTrait[T] {
     def sqrt(a: T): T

@@ -1,6 +1,6 @@
 package amo.geometry.figures
 
-import amo.algreal.Field.{ ConstructibleTrait, FieldTrait }
+import amo.algreal.field.{ ConstructibleTrait, FieldTrait }
 
 case class Point[T](x: T, y: T)(implicit field: FieldTrait[T]) {
     def + (rhs: Point[T]): Point[T] = Point(field.add(x, rhs.x), field.add(y, rhs.y))

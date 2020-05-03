@@ -1,6 +1,6 @@
 package amo.algreal.factors
 
-import amo.algreal.Field.FiniteFieldTrait
+import amo.algreal.field.FiniteFieldTrait
 import amo.algreal.EuclideanDomainTrait
 import amo.algreal.polynomial.Unipoly
 

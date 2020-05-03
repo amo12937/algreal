@@ -6,7 +6,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import scala.util.Random
 
 import amo.implicits._
-import amo.algreal.Field.PrimeField
+import amo.algreal.field.PrimeField
 import amo.algreal.Prime
 import amo.algreal.polynomial.Unipoly
 

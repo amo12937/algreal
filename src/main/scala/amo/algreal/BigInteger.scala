@@ -3,7 +3,7 @@ package amo.algreal
 import scala.annotation.tailrec
 import scala.math.Ordering
 
-import amo.algreal.Field.{ QuotientField, QuotientFieldTrait, QuotientFieldOrderingExtension }
+import amo.algreal.field.{ QuotientField, QuotientFieldTrait, QuotientFieldOrderingExtension }
 import amo.algreal.polynomial.Unipoly
 
 object BigInteger {

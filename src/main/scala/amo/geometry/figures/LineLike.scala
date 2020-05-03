@@ -1,7 +1,7 @@
 package amo.geometry.figures
 
 import amo.algreal.{ Closure, Interval }
-import amo.algreal.Field.ConstructibleTrait
+import amo.algreal.field.ConstructibleTrait
 import amo.algreal.Closure.implicits._
 import Binomial._
 

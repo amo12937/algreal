@@ -5,7 +5,7 @@ import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpec
 
 import amo.algreal.RingTrait
-import amo.algreal.Field.QuotientField
+import amo.algreal.field.QuotientField
 import amo.implicits._
 
 class UnipolySpec extends AnyWordSpec with Matchers with TableDrivenPropertyChecks {

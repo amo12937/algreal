@@ -1,4 +1,4 @@
-package amo.algreal.Field
+package amo.algreal.field
 
 import amo.algreal.{ EuclideanDomainTrait, Prime }
 import amo.algreal.polynomial.Unipoly

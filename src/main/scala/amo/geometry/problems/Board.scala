@@ -1,6 +1,6 @@
 package amo.geometry.problems
 
-import amo.algreal.Field.ConstructibleTrait
+import amo.algreal.field.ConstructibleTrait
 import amo.geometry.commands.Command
 import amo.geometry.figures.{ Circle, LineLike, Point }
 import amo.implicits._

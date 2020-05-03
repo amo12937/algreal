@@ -4,7 +4,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 import amo.implicits._
-import amo.algreal.Field.PrimeField
+import amo.algreal.field.PrimeField
 import amo.algreal.polynomial.Unipoly
 
 class PrimeFieldEuclideanDomainSpec extends AnyWordSpec with Matchers {

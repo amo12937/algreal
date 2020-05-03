@@ -1,4 +1,4 @@
-package amo.algreal.Field
+package amo.algreal.field
 
 import java.lang.ArithmeticException
 

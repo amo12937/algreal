@@ -1,6 +1,6 @@
 package amo.geometry.figures
 
-import amo.algreal.Field.ConstructibleTrait
+import amo.algreal.field.ConstructibleTrait
 
 trait Figure2D[T] extends Equals {
     implicit val constructible: ConstructibleTrait[T]

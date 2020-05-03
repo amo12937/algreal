@@ -2,7 +2,7 @@ package amo.geometry.figures
 
 import scala.language.higherKinds
 
-import amo.algreal.Field.{ ConstructibleTrait }
+import amo.algreal.field.{ ConstructibleTrait }
 
 trait IntersectionSolver[T, Fig1[_], Fig2[_]] {   // T, Fig1, Fig2 を与えて、
     def intersects(f1: Fig1[T], f2: Fig2[T])(

@@ -3,7 +3,7 @@ package amo.algreal.polynomial
 import java.lang.ArithmeticException
 
 import amo.algreal.{ Closure, EuclideanDomainTrait, GcdDomainTrait, RingTrait }
-import amo.algreal.Field.QuotientField
+import amo.algreal.field.QuotientField
 
 class Unipoly[T](val cs: Vector[T])(
     implicit val gcdDomainT: GcdDomainTrait[T]

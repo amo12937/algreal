@@ -1,7 +1,7 @@
 package amo.algreal.polynomial
 
 import amo.algreal.{ GcdDomainTrait, Interval }
-import amo.algreal.Field.{ QuotientField, QuotientFieldOrderingExtension }
+import amo.algreal.field.{ QuotientField, QuotientFieldOrderingExtension }
 import amo.implicits._
 
 object StrumExtension {

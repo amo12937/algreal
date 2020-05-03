@@ -1,6 +1,6 @@
 package amo.geometry.figures
 
-import amo.algreal.Field.ConstructibleTrait
+import amo.algreal.field.ConstructibleTrait
 import Binomial._
 
 case class Circle[T](

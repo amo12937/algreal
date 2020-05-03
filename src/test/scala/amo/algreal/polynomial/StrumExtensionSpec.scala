@@ -4,7 +4,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 import amo.algreal.{ Interval }
-import amo.algreal.Field.QuotientField
+import amo.algreal.field.QuotientField
 import amo.implicits._
 
 class StrumExtensionSpec extends AnyWordSpec with Matchers {

@@ -6,7 +6,7 @@ import scala.util.Random
 
 import amo.implicits._
 import amo.algreal.{ EuclideanDomainTrait, Prime }
-import amo.algreal.Field.{ PrimeField, PrimeFieldModular, PrimeFieldTrait }
+import amo.algreal.field.{ PrimeField, PrimeFieldModular, PrimeFieldTrait }
 import amo.algreal.polynomial.Unipoly
 import amo.util.Random._
 

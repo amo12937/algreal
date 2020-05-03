@@ -1,6 +1,6 @@
 package amo.geometry.commands
 
-import amo.algreal.Field.ConstructibleTrait
+import amo.algreal.field.ConstructibleTrait
 import amo.geometry.figures.{ Line, Point }
 import amo.geometry.problems.{ Board, Cost }
 

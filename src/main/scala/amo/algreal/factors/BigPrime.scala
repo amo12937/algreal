@@ -2,7 +2,7 @@ package amo.algreal.factors
 
 import amo.implicits._
 import amo.algreal.{ BigInteger, Closure, RingTrait }
-import amo.algreal.Field.{ PrimeFieldModular, PrimeFieldTrait }
+import amo.algreal.field.{ PrimeFieldModular, PrimeFieldTrait }
 import amo.algreal.polynomial.Unipoly
 
 object BigPrime {

@@ -1,7 +1,7 @@
 package amo
 
 import amo.algreal.{ AlgReal, BigInteger, Closure }
-import amo.algreal.Field.{ QuotientField, QuotientFieldOrderingExtension }
+import amo.algreal.field.{ QuotientField, QuotientFieldOrderingExtension }
 import amo.algreal.polynomial.{ StrumExtension, Unipoly, AlgRealExtension }
 import amo.geometry.figures.IntersectionExtension
 import amo.util.Random
